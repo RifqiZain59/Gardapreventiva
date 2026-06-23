@@ -6,6 +6,7 @@ abstract class Routes {
   static const HOME = _Paths.HOME;
   static const MAIN_NAVIGATION = _Paths.MAIN_NAVIGATION;
   static const SCANNER = _Paths.SCANNER;
+  static const SCAN_BARCODE = _Paths.SCAN_BARCODE;
   static const ANGGOTA = _Paths.ANGGOTA;
   static const PROFILE = _Paths.PROFILE;
   static const RIWAYAT = _Paths.RIWAYAT;
@@ -27,6 +28,7 @@ abstract class Routes {
   static const INFORMASI_KESEHATAN = _Paths.INFORMASI_KESEHATAN;
   static const INFORMASI_KESEHATAN_DETAIL = _Paths.INFORMASI_KESEHATAN_DETAIL;
   static const NOTIFIKASI = _Paths.NOTIFIKASI;
+  static const DETAIL_DOKTER = _Paths.DETAIL_DOKTER;
 }
 
 abstract class _Paths {
@@ -34,6 +36,7 @@ abstract class _Paths {
   static const HOME = '/home';
   static const MAIN_NAVIGATION = '/main-navigation';
   static const SCANNER = '/scanner';
+  static const SCAN_BARCODE = '/scan-barcode';
   static const ANGGOTA = '/ANGGOTA';
   static const PROFILE = '/profile';
   static const RIWAYAT = '/riwayat';
@@ -55,4 +58,5 @@ abstract class _Paths {
   static const INFORMASI_KESEHATAN = '/informasi-kesehatan';
   static const INFORMASI_KESEHATAN_DETAIL = '/informasi-kesehatan-detail';
   static const NOTIFIKASI = '/notifikasi';
+  static const DETAIL_DOKTER = '/detail-dokter';
 }

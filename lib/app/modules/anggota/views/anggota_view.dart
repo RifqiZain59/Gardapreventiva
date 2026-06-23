@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart'; // Ditambahkan untuk efek radar
+import 'package:qr_flutter/qr_flutter.dart';
 import '../controllers/anggota_controller.dart';
 
 class AppColors {
@@ -69,14 +70,17 @@ class AnggotaView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 _InviteOptionTile(
-                  icon: Icons.ios_share_rounded,
-                  title: controller.isCreatingInvite.value ? "Membuat Link..." : "Bagikan Link Undangan",
-                  subtitle: "WhatsApp, pesan, email, dan aplikasi lain",
+                  icon: Icons.qr_code_2_rounded,
+                  title: controller.isCreatingInvite.value ? "Membuat Barcode..." : "Tampilkan Barcode Undangan",
+                  subtitle: "Minta anggota memindai layar Anda",
                   onTap: controller.isCreatingInvite.value
                       ? null
                       : () async {
                           Get.back();
-                          await controller.shareInviteLink();
+                          String? qrData = await controller.generateQRInvite();
+                          if (qrData != null && context.mounted) {
+                            _showQRDialog(context, qrData);
+                          }
                         },
                 ),
                 const SizedBox(height: 10),
@@ -87,6 +91,19 @@ class AnggotaView extends StatelessWidget {
                   onTap: () {
                     Get.back();
                     _showInviteDialog(context);
+                  },
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(color: AppColors.glassBorder, height: 1),
+                ),
+                _InviteOptionTile(
+                  icon: Icons.qr_code_scanner_rounded,
+                  title: "Pindai Undangan",
+                  subtitle: "Gabung ke grup dengan memindai barcode",
+                  onTap: () {
+                    Get.back();
+                    Get.toNamed('/scan-barcode');
                   },
                 ),
               ],
@@ -203,7 +220,7 @@ class AnggotaView extends StatelessWidget {
                         ),
                         ElevatedButton.icon(
                           onPressed: () {
-                            controller.requestConnection(device['id']!, device['name']!);
+                            controller.requestConnection(device['id'] ?? '', device['name'] ?? 'Unknown');
                             Get.back();
                           },
                           style: ElevatedButton.styleFrom(
@@ -230,12 +247,19 @@ class AnggotaView extends StatelessWidget {
                               height: 14,
                               child: CircularProgressIndicator(strokeWidth: 1.8, color: Colors.white),
                             )
-                          : const Icon(Icons.ios_share_rounded, size: 18),
+                          : const Icon(Icons.qr_code_2_rounded, size: 18),
                       label: Text(
-                        controller.isCreatingInvite.value ? "Membuat Link..." : "Bagikan Link Undangan",
+                        controller.isCreatingInvite.value ? "Membuat Barcode..." : "Tampilkan Barcode Undangan",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      onPressed: controller.isCreatingInvite.value ? null : controller.shareInviteLink,
+                      onPressed: controller.isCreatingInvite.value 
+                        ? null 
+                        : () async {
+                            String? qrData = await controller.generateQRInvite();
+                            if (qrData != null && context.mounted) {
+                              _showQRDialog(context, qrData);
+                            }
+                          },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -261,6 +285,60 @@ class AnggotaView extends StatelessWidget {
                 ],
               );
             }),
+          ),
+        );
+      }
+    );
+  }
+
+  void _showQRDialog(BuildContext context, String qrData) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Barcode Undangan",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Minta pengguna lain untuk memindai barcode ini melalui aplikasi.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.glassBorder),
+                  ),
+                  child: QrImageView(
+                    data: qrData,
+                    version: QrVersions.auto,
+                    size: 200.0,
+                    foregroundColor: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Get.back(),
+                    style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                    child: const Text("TUTUP", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                  ),
+                )
+              ],
+            ),
           ),
         );
       }
@@ -363,6 +441,67 @@ class AnggotaView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Pending Requests
+                    Obx(() {
+                      if (controller.pendingRequests.isEmpty) return const SizedBox.shrink();
+                      
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Permintaan Bergabung",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
+                          ),
+                          const SizedBox(height: 12),
+                          ...controller.pendingRequests.map((req) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade50,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.orange.shade200),
+                              ),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Colors.orange.shade200,
+                                    child: const Icon(Icons.person, color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(req.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                        const SizedBox(height: 4),
+                                        Text("Meminta bergabung", style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () => controller.rejectRequest(req),
+                                        icon: const Icon(Icons.close, color: Colors.red),
+                                        tooltip: "Tolak",
+                                      ),
+                                      IconButton(
+                                        onPressed: () => controller.acceptRequest(req),
+                                        icon: const Icon(Icons.check, color: Colors.green),
+                                        tooltip: "Terima",
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            );
+                          }),
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    }),
+                    
                     // Members Cards
                 Obx(() {
                   final members = controller.AnggotaMembers;

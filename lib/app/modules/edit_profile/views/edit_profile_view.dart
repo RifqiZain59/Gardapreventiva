@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/edit_profile_controller.dart';
@@ -26,6 +27,50 @@ class EditProfileView extends GetView<EditProfileController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: GestureDetector(
+                  onTap: controller.pickImage,
+                  child: Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2E7D32).withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: controller.photoBase64.value.isNotEmpty
+                            ? CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.white,
+                                backgroundImage: MemoryImage(
+                                  const Base64Decoder().convert(controller.photoBase64.value)
+                                ),
+                              )
+                            : const CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.white,
+                                child: Icon(Icons.person_rounded, color: Color(0xFF2E7D32), size: 60),
+                              ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2E7D32),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 20),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+
               _buildSectionTitle('Informasi Dasar'),
               _buildCard(
                 child: Column(

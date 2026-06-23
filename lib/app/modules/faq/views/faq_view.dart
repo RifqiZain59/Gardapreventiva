@@ -150,6 +150,73 @@ class FaqView extends GetView<FaqController> {
               },
             ),
 
+            const SizedBox(height: 40),
+            
+            // Delete Account Section
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.red.shade100, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4)
+                  )
+                ]
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.delete_forever_rounded, color: Colors.red.shade700, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          "Zona Bahaya",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red),
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Menghapus akun akan menghilangkan semua data rekam medis, riwayat konsumsi, dan pengaturan Anda. Tindakan ini tidak dapat dibatalkan.",
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700, height: 1.5),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade50,
+                        foregroundColor: Colors.red.shade700,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.red.shade200)
+                        )
+                      ),
+                      onPressed: () => controller.deleteAccount(),
+                      child: const Text("Hapus Akun Permanen", style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
           ],
         ),
       ),

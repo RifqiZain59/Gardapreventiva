@@ -222,23 +222,16 @@ class RegisterView extends GetView<RegisterController> {
     bool isPassword, 
     [TextInputType type = TextInputType.text, RxBool? obscureState, VoidCallback? onToggleObscure]
   ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Obx(() {
-        bool isObscured = isPassword && obscureState != null ? obscureState.value : false;
-        return TextField(
-          controller: txtController,
-          obscureText: isObscured,
-          keyboardType: type,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-            prefixIcon: Icon(icon, color: Colors.grey),
-            suffixIcon: isPassword && obscureState != null && onToggleObscure != null
+    Widget buildTextFieldWidget(bool isObscured) {
+      return TextField(
+        controller: txtController,
+        obscureText: isObscured,
+        keyboardType: type,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+          prefixIcon: Icon(icon, color: Colors.grey),
+          suffixIcon: isPassword && obscureState != null && onToggleObscure != null
               ? IconButton(
                   icon: Icon(
                     isObscured ? Icons.visibility_off : Icons.visibility,
@@ -247,11 +240,21 @@ class RegisterView extends GetView<RegisterController> {
                   onPressed: onToggleObscure,
                 )
               : null,
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          ),
-        );
-      }),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: isPassword && obscureState != null
+          ? Obx(() => buildTextFieldWidget(obscureState.value))
+          : buildTextFieldWidget(false),
     );
   }
 }

@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatMessage {
+  final String? id;
   final String text;
   final bool isUser;
   final DateTime time;
@@ -11,6 +13,7 @@ class ChatMessage {
   final String? senderRole;
 
   ChatMessage({
+    this.id,
     required this.text,
     required this.isUser,
     required this.time,
@@ -64,20 +67,15 @@ class ChatController extends GetxController {
       final List<Map<String, dynamic>> tempDoctors = [];
       for (var doc in snapshot.docs) {
         final data = doc.data();
-        print("DOKTER DEBUG Data: $data");
         final peran = (data['peran'] ?? '').toString().toLowerCase();
-        // Cek toleransi case sensitivity
         if (peran == 'dokter') {
           tempDoctors.add({'id': doc.id, ...data});
-        } else {
-          // DEBUG: Tampilkan semua data sementara agar kita bisa lihat strukturnya di layar
-          tempDoctors.add({'id': doc.id, 'is_debug': true, ...data});
         }
       }
 
       doctors.value = tempDoctors;
     } catch (e) {
-      print("Error fetching doctors/admins: $e");
+      print("Error fetching doctors: $e");
     }
     isLoadingDoctors.value = false;
   }
@@ -85,21 +83,6 @@ class ChatController extends GetxController {
   Future<void> openChatWithDoctor(Map<String, dynamic> doctor) async {
     selectedDoctor.value = doctor;
     messages.clear();
-
-    final docName = doctor['username'] ?? 'Dokter';
-    final docRole = doctor['peran'] ?? 'dokter';
-
-    messages.insert(
-      0,
-      ChatMessage(
-        text: "--- Anda terhubung dengan $docName ---",
-        isUser: false,
-        time: DateTime.now(),
-        senderName: 'Sistem',
-        senderRole: 'sistem',
-      ),
-    );
-
     _listenToFirebaseChat();
   }
 
@@ -125,17 +108,6 @@ class ChatController extends GetxController {
       'timestamp': FieldValue.serverTimestamp(),
     };
 
-    messages.insert(
-      0, 
-      ChatMessage(
-        text: text, 
-        isUser: true, 
-        time: DateTime.now(),
-        senderName: userName,
-        senderRole: 'pasien'
-      )
-    );
-
     try {
       // Simpan di sub-collection mobile
       await FirebaseFirestore.instance
@@ -146,7 +118,7 @@ class ChatController extends GetxController {
           .collection('messages')
           .add(messageData);
 
-      // Simpan di sub-collection website
+      // Simpan di sub-collection website (untuk dokter)
       await FirebaseFirestore.instance
           .collection('website')
           .doc(doctorId)
@@ -177,32 +149,118 @@ class ChatController extends GetxController {
         .orderBy('timestamp', descending: true);
 
     _chatSubscription = query.snapshots().listen((snapshot) {
-      for (var change in snapshot.docChanges) {
-        if (change.type == DocumentChangeType.added) {
-          final data = change.doc.data() as Map<String, dynamic>;
-          final senderId = data['senderId'] ?? '';
+      final List<ChatMessage> newMessages = [];
+      
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final text = data['text'] ?? '';
+        final senderId = data['senderId'] ?? '';
+        final isUser = senderId == userId;
+        final ts = data['timestamp'] as Timestamp?;
+        final time = ts?.toDate() ?? DateTime.now();
+        final senderName = data['senderName'] ?? (isUser ? 'Pasien' : (selectedDoctor.value?['username'] ?? 'Dokter'));
+        final senderRole = data['senderRole'] ?? (isUser ? 'pasien' : (selectedDoctor.value?['peran'] ?? 'dokter'));
 
-          if (senderId != userId) {
-            final text = data['text'] ?? '';
-            final ts = data['timestamp'] as Timestamp?;
-            final time = ts?.toDate() ?? DateTime.now();
-            final senderName = data['senderName'] ?? selectedDoctor.value?['username'] ?? 'Dokter';
-            final senderRole = data['senderRole'] ?? selectedDoctor.value?['peran'] ?? 'dokter';
-
-            messages.insert(
-              0, 
-              ChatMessage(
-                text: text, 
-                isUser: false, 
-                time: time,
-                senderName: senderName,
-                senderRole: senderRole
-              )
-            );
-          }
-        }
+        newMessages.add(
+          ChatMessage(
+            id: doc.id,
+            text: text, 
+            isUser: isUser, 
+            time: time,
+            senderName: senderName,
+            senderRole: senderRole
+          )
+        );
       }
+      
+      // Tambahkan pesan sistem di bagian paling bawah (index paling akhir karena reverse list)
+      final docName = selectedDoctor.value?['username'] ?? 'Dokter';
+      newMessages.add(
+        ChatMessage(
+          id: 'system',
+          text: "--- Anda terhubung dengan $docName ---",
+          isUser: false,
+          time: DateTime.now(),
+          senderName: 'Sistem',
+          senderRole: 'sistem',
+        )
+      );
+
+      messages.value = newMessages;
     });
+  }
+
+  Future<void> deleteSingleMessage(String msgId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid;
+    final doctorId = selectedDoctor.value?['id'];
+
+    if (userId == null || doctorId == null || msgId == 'system') return;
+
+    try {
+      // Hapus dari sisi mobile
+      await FirebaseFirestore.instance
+          .collection('mobile')
+          .doc(userId)
+          .collection('chats')
+          .doc(doctorId)
+          .collection('messages')
+          .doc(msgId)
+          .delete();
+
+      // Hapus dari sisi website (opsional, tapi baik untuk konsistensi)
+      await FirebaseFirestore.instance
+          .collection('website')
+          .doc(doctorId)
+          .collection('chats')
+          .doc(userId)
+          .collection('messages')
+          .doc(msgId)
+          .delete();
+
+      Get.snackbar('Berhasil', 'Pesan berhasil dihapus', backgroundColor: Colors.green.withOpacity(0.1), colorText: Colors.green);
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal menghapus pesan: $e');
+    }
+  }
+
+  Future<void> deleteChat() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid;
+    final doctorId = selectedDoctor.value?['id'];
+
+    if (userId == null || doctorId == null) return;
+
+    try {
+      final messagesRef = FirebaseFirestore.instance
+          .collection('mobile')
+          .doc(userId)
+          .collection('chats')
+          .doc(doctorId)
+          .collection('messages');
+
+      final snapshot = await messagesRef.get();
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      messages.clear();
+      final docName = selectedDoctor.value?['username'] ?? 'Dokter';
+      messages.insert(
+        0,
+        ChatMessage(
+          text: "--- Chat dengan $docName telah dihapus ---",
+          isUser: false,
+          time: DateTime.now(),
+          senderName: 'Sistem',
+          senderRole: 'sistem',
+        ),
+      );
+      
+      Get.snackbar('Berhasil', 'Chat berhasil dihapus', backgroundColor: Get.theme.primaryColor.withOpacity(0.1));
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal menghapus chat: $e');
+    }
   }
 
   @override

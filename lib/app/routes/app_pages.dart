@@ -36,6 +36,8 @@ import '../modules/riwayat_login/bindings/riwayat_login_binding.dart';
 import '../modules/riwayat_login/views/riwayat_login_view.dart';
 import '../modules/scanner/bindings/scanner_binding.dart';
 import '../modules/scanner/views/scanner_view.dart';
+import '../modules/scan_barcode/bindings/scan_barcode_binding.dart';
+import '../modules/scan_barcode/views/scan_barcode_view.dart';
 import '../modules/semua_menu/bindings/semua_menu_binding.dart';
 import '../modules/semua_menu/views/semua_menu_view.dart';
 import '../modules/informasi_kesehatan/bindings/informasi_kesehatan_binding.dart';
@@ -48,6 +50,8 @@ import '../modules/verifikasi_email/bindings/verifikasi_email_binding.dart';
 import '../modules/verifikasi_email/views/verifikasi_email_view.dart';
 import '../modules/notifikasi/bindings/notifikasi_binding.dart';
 import '../modules/notifikasi/views/notifikasi_view.dart';
+import '../modules/detail_dokter/bindings/detail_dokter_binding.dart';
+import '../modules/detail_dokter/views/detail_dokter_view.dart';
 
 part 'app_routes.dart';
 
@@ -71,6 +75,11 @@ class AppPages {
       name: _Paths.SCANNER,
       page: () => const ScannerView(),
       binding: ScannerBinding(),
+    ),
+    GetPage(
+      name: _Paths.SCAN_BARCODE,
+      page: () => const ScanBarcodeView(),
+      binding: ScanBarcodeBinding(),
     ),
     GetPage(
       name: _Paths.ANGGOTA,
@@ -176,6 +185,11 @@ class AppPages {
       name: _Paths.NOTIFIKASI,
       page: () => const NotifikasiView(),
       binding: NotifikasiBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_DOKTER,
+      page: () => const DetailDokterView(),
+      binding: DetailDokterBinding(),
     ),
   ];
 }

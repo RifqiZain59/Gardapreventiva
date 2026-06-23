@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
@@ -16,31 +17,36 @@ class ChatView extends GetView<ChatController> {
           if (controller.selectedDoctor.value != null) {
             final doc = controller.selectedDoctor.value!;
             final docName = doc['username'] ?? 'Dokter';
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Colors.white24,
-                  child: Icon(Icons.person, color: Colors.white, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        docName, 
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const Text('Online', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: Colors.white70)),
-                    ],
+            return GestureDetector(
+              onTap: () {
+                Get.toNamed(Routes.DETAIL_DOKTER, arguments: doc);
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.white24,
+                    child: Icon(Icons.person, color: Colors.white, size: 20),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          docName, 
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Text('Online', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: Colors.white70)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             );
           }
           return const Row(
@@ -71,6 +77,117 @@ class ChatView extends GetView<ChatController> {
             onPressed: () => Get.back(),
           );
         }),
+        actions: [
+          Obx(() {
+            if (controller.selectedDoctor.value != null) {
+              return PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    Get.dialog(
+                      Dialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        backgroundColor: Colors.transparent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                right: -20,
+                                bottom: -20,
+                                child: Opacity(
+                                  opacity: 0.05,
+                                  child: Icon(Icons.delete_sweep_rounded, size: 140, color: Colors.red.shade900),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.delete_outline_rounded, color: Colors.red.shade600, size: 40),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    const Text(
+                                      "Hapus Semua Chat?", 
+                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      "Apakah Anda yakin ingin menghapus seluruh riwayat chat ini? Tindakan ini tidak dapat dibatalkan.",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600, height: 1.5),
+                                    ),
+                                    const SizedBox(height: 28),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: OutlinedButton(
+                                            style: OutlinedButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(vertical: 14),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                              side: BorderSide(color: Colors.grey.shade300)
+                                            ),
+                                            onPressed: () => Get.back(),
+                                            child: const Text("Batal", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red.shade600,
+                                              foregroundColor: Colors.white,
+                                              padding: const EdgeInsets.symmetric(vertical: 14),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                              elevation: 0,
+                                            ),
+                                            onPressed: () {
+                                              Get.back();
+                                              controller.deleteChat();
+                                            },
+                                            child: const Text("Hapus", style: TextStyle(fontWeight: FontWeight.bold)),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    );
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text('Hapus Chat', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+        ],
       ),
       body: Obx(() {
         if (controller.selectedDoctor.value == null) {
@@ -101,6 +218,7 @@ class ChatView extends GetView<ChatController> {
                       itemBuilder: (context, index) {
                         final msg = controller.messages[index];
                         return _ChatBubble(
+                          id: msg.id,
                           text: msg.text,
                           isUser: msg.isUser,
                           senderName: msg.senderName,
@@ -332,6 +450,7 @@ class ChatView extends GetView<ChatController> {
 }
 
 class _ChatBubble extends StatelessWidget {
+  final String? id;
   final String text;
   final bool isUser;
   final String? senderName;
@@ -339,6 +458,7 @@ class _ChatBubble extends StatelessWidget {
   final DateTime time;
 
   const _ChatBubble({
+    this.id,
     required this.text,
     required this.isUser,
     required this.time,
@@ -346,87 +466,183 @@ class _ChatBubble extends StatelessWidget {
     this.senderRole,
   });
 
+  void _showDeleteDialog(BuildContext context, ChatController controller) {
+    if (id == null || id == 'system') return;
+    
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            children: [
+              Positioned(
+                right: -20,
+                bottom: -20,
+                child: Opacity(
+                  opacity: 0.04,
+                  child: Icon(Icons.delete_sweep_rounded, size: 120, color: Colors.red.shade900),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.delete_outline_rounded, color: Colors.red.shade600, size: 32),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Hapus Pesan?", 
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Apakah Anda yakin ingin menghapus pesan ini?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              side: BorderSide(color: Colors.grey.shade300)
+                            ),
+                            onPressed: () => Get.back(),
+                            child: const Text("Batal", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red.shade600,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              elevation: 0,
+                            ),
+                            onPressed: () {
+                              Get.back();
+                              if (id != null) {
+                                controller.deleteSingleMessage(id!);
+                              }
+                            },
+                            child: const Text("Hapus", style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Format waktu
     String formattedTime = "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+    final controller = Get.find<ChatController>();
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75, // Maksimal lebar chat 75%
-        ),
-        child: Column(
-          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            // Nama pengirim untuk dokter
-            if (!isUser && senderName != null && senderRole != 'sistem')
-              Padding(
-                padding: const EdgeInsets.only(left: 12, bottom: 4),
-                child: Text(
-                  "$senderName (${senderRole!.toUpperCase()})",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-              
-            // Bubble Chat
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isUser ? const Color(0xFF2E7D32) : Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(20),
-                  topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(isUser ? 20 : 4), // Lebih lancip di bawah
-                  bottomRight: Radius.circular(isUser ? 4 : 20),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-                border: isUser ? null : Border.all(color: Colors.grey.shade200),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    text,
+      child: GestureDetector(
+        onLongPress: isUser ? () => _showDeleteDialog(context, controller) : null,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.75, // Maksimal lebar chat 75%
+          ),
+          child: Column(
+            crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              // Nama pengirim untuk dokter
+              if (!isUser && senderName != null && senderRole != 'sistem')
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 4),
+                  child: Text(
+                    "$senderName (${senderRole?.toUpperCase() ?? ''})",
                     style: TextStyle(
-                      color: isUser ? Colors.white : const Color(0xFF1E293B),
-                      fontSize: 14.5,
-                      height: 1.4,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        formattedTime,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isUser ? Colors.white70 : Colors.grey.shade500,
-                        ),
-                      ),
-                      if (isUser) ...[
-                        const SizedBox(width: 4),
-                        const Icon(Icons.done_all, size: 12, color: Colors.white70),
-                      ]
-                    ],
+                ),
+                
+              // Bubble Chat
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isUser ? const Color(0xFF2E7D32) : Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(20),
+                    topRight: const Radius.circular(20),
+                    bottomLeft: Radius.circular(isUser ? 20 : 4), // Lebih lancip di bawah
+                    bottomRight: Radius.circular(isUser ? 4 : 20),
                   ),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  border: isUser ? null : Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      text,
+                      style: TextStyle(
+                        color: isUser ? Colors.white : const Color(0xFF1E293B),
+                        fontSize: 14.5,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          formattedTime,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isUser ? Colors.white70 : Colors.grey.shade500,
+                          ),
+                        ),
+                        if (isUser) ...[
+                          const SizedBox(width: 4),
+                          const Icon(Icons.done_all, size: 12, color: Colors.white70),
+                        ]
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -210,16 +211,7 @@ class ProfileView extends GetView<ProfileController> {
                             subtitle: "Akhiri sesi saat ini",
                             textColor: AppColors.danger,
                             iconColor: AppColors.danger,
-                            onTap: () => controller.logout(),
-                          ),
-                          const Divider(height: 1, indent: 56, color: AppColors.glassBorder),
-                          _buildSimpleMenuTile(
-                            icon: Icons.person_remove_rounded, 
-                            title: "Hapus Akun", 
-                            subtitle: "Hapus akun permanen",
-                            textColor: Colors.red.shade900,
-                            iconColor: Colors.red.shade900,
-                            onTap: () => controller.deleteAccount(),
+                            onTap: () => controller.confirmLogout(),
                           ),
                         ],
                       ),
@@ -280,11 +272,30 @@ class ProfileView extends GetView<ProfileController> {
                           color: Colors.white.withOpacity(0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const CircleAvatar(
-                          radius: 36,
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.person_rounded, color: AppColors.primary, size: 45),
-                        ),
+                        child: Obx(() {
+                          if (controller.photoBase64.value.isNotEmpty) {
+                            try {
+                              return CircleAvatar(
+                                radius: 36,
+                                backgroundColor: Colors.white,
+                                backgroundImage: MemoryImage(
+                                  const Base64Decoder().convert(controller.photoBase64.value)
+                                ),
+                              );
+                            } catch (e) {
+                              return const CircleAvatar(
+                                radius: 36,
+                                backgroundColor: Colors.white,
+                                child: Icon(Icons.person_rounded, color: AppColors.primary, size: 45),
+                              );
+                            }
+                          }
+                          return const CircleAvatar(
+                            radius: 36,
+                            backgroundColor: Colors.white,
+                            child: Icon(Icons.person_rounded, color: AppColors.primary, size: 45),
+                          );
+                        }),
                       ),
                       const SizedBox(width: 20),
                       Expanded(

@@ -15,6 +15,8 @@ class ProfileController extends GetxController {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final RxString healthTargetText = "".obs;
 
+  final RxString photoBase64 = "".obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -31,6 +33,7 @@ class ProfileController extends GetxController {
           name.value = data['name'] ?? user.displayName ?? "Pengguna";
           totalNatrium.value = (data['natrium'] as num?)?.toInt() ?? (data['sodium'] as num?)?.toInt() ?? (data['totalNatrium'] as num?)?.toInt() ?? 0;
           age.value = data['age'] ?? 28;
+          photoBase64.value = data['photoBase64'] ?? '';
           
           // Format dailyLimit to int string correctly
           if (data['dailyLimit'] != null) {
@@ -158,6 +161,8 @@ class ProfileController extends GetxController {
                 icon: const Icon(Icons.date_range_rounded, color: Colors.white),
                 label: const Text("Pilih Rentang Tanggal", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                 onPressed: () async {
+                  if (Get.context == null) return;
+    
                   final DateTimeRange? picked = await showDateRangePicker(
                     context: Get.context!,
                     firstDate: DateTime(2020),
@@ -347,11 +352,7 @@ class ProfileController extends GetxController {
     showExportDialog();
   }
 
-  // Dialog Edit Profil
-  void showEditProfileDialog() {
-    final TextEditingController nameController = TextEditingController(text: name.value);
-    final TextEditingController ageController = TextEditingController(text: age.value.toString());
-
+  void confirmLogout() {
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -361,90 +362,53 @@ class ProfileController extends GetxController {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("Edit Profil", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle
+                ),
+                child: const Icon(Icons.logout_rounded, color: Colors.red, size: 32),
+              ),
+              const SizedBox(height: 20),
+              const Text("Keluar Akun", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 8),
+              const Text("Apakah Anda yakin ingin keluar? Anda harus login kembali untuk masuk.", 
+                style: TextStyle(color: Colors.grey, fontSize: 13), 
+                textAlign: TextAlign.center
+              ),
               const SizedBox(height: 24),
-              
-              // Foto Profil Avatar (Interaktif)
-              Stack(
+              Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2E7D32).withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person_rounded, color: Color(0xFF2E7D32), size: 50),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2E7D32),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: const BorderSide(color: Colors.grey)
                       ),
-                      child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
+                      onPressed: () => Get.back(),
+                      child: const Text("Batal", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold)),
                     ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Input Nama
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "Nama Lengkap",
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.badge_rounded, color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2E7D32))),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Input Usia
-              TextField(
-                controller: ageController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "Usia (Tahun)",
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.cake_rounded, color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2E7D32))),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Tombol Simpan
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0
                   ),
-                  onPressed: () {
-                    if (nameController.text.isNotEmpty) name.value = nameController.text;
-                    if (ageController.text.isNotEmpty) age.value = int.tryParse(ageController.text) ?? age.value;
-                    Get.back();
-                    Get.snackbar("Tersimpan", "Profil berhasil diperbarui", backgroundColor: Colors.white);
-                  },
-                  child: const Text("Simpan Perubahan", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0
+                      ),
+                      onPressed: () async {
+                        Get.back(); // tutup dialog
+                        await FirebaseAuth.instance.signOut();
+                        Get.offAllNamed(Routes.LOGIN);
+                      },
+                      child: const Text("Ya, Keluar", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               )
             ],
           ),
@@ -452,39 +416,5 @@ class ProfileController extends GetxController {
       ),
       barrierDismissible: true,
     );
-  }
-
-  void deleteAccount() {
-    Get.defaultDialog(
-      title: "Hapus Akun",
-      titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-      middleText: "Apakah Anda yakin ingin menghapus akun secara permanen? Semua data medis dan riwayat akan hilang dan tidak dapat dipulihkan.",
-      textConfirm: "Hapus",
-      textCancel: "Batal",
-      confirmTextColor: Colors.white,
-      buttonColor: Colors.red,
-      cancelTextColor: Colors.black87,
-      onConfirm: () async {
-        try {
-          User? user = FirebaseAuth.instance.currentUser;
-          if (user != null) {
-            // Delete user data in firestore (optional but good practice)
-            await FirebaseFirestore.instance.collection('mobile').doc(user.uid).delete();
-            // Delete the auth user
-            await user.delete();
-            Get.offAllNamed(Routes.LOGIN);
-            Get.snackbar("Berhasil", "Akun Anda telah dihapus secara permanen.", backgroundColor: Colors.green.withOpacity(0.1), colorText: Colors.green);
-          }
-        } catch (e) {
-          Get.back();
-          Get.snackbar("Gagal", "Silakan login ulang terlebih dahulu sebelum menghapus akun.", backgroundColor: Colors.red.withOpacity(0.1), colorText: Colors.red);
-        }
-      },
-    );
-  }
-
-  void logout() async {
-    await FirebaseAuth.instance.signOut();
-    Get.offAllNamed(Routes.LOGIN);
   }
 }

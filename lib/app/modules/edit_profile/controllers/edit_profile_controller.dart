@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditProfileController extends GetxController {
   final nameController = TextEditingController();
@@ -11,6 +14,8 @@ class EditProfileController extends GetxController {
   final tinggiBadanController = TextEditingController();
 
   final selectedCondition = 'Sehat'.obs;
+  final RxString photoBase64 = ''.obs;
+  final ImagePicker _picker = ImagePicker();
   
   final List<String> conditions = [
     'Sehat',
@@ -42,9 +47,29 @@ class EditProfileController extends GetxController {
         beratBadanController.text = (data['beratBadan'] ?? '').toString();
         tinggiBadanController.text = (data['tinggiBadan'] ?? '').toString();
         selectedCondition.value = data['kondisi'] ?? 'Sehat';
+        photoBase64.value = data['photoBase64'] ?? '';
       }
     }
     isFetching.value = false;
+  }
+
+  Future<void> pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 70,
+      );
+      if (image != null) {
+        final File file = File(image.path);
+        final bytes = await file.readAsBytes();
+        final base64String = base64Encode(bytes);
+        photoBase64.value = base64String;
+      }
+    } catch (e) {
+      Get.snackbar('Kesalahan', 'Gagal mengambil gambar', backgroundColor: Colors.red.withOpacity(0.1), colorText: Colors.red);
+    }
   }
 
   double calculateDailyLimit(int age, String condition) {
@@ -115,6 +140,7 @@ class EditProfileController extends GetxController {
           'age': age,
           'kondisi': selectedCondition.value,
           'dailyLimit': newLimit,
+          'photoBase64': photoBase64.value,
         });
 
         Get.back();
