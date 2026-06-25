@@ -1,0 +1,134 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../services/auth_service.dart';
+
+class NakesEditProfileController extends GetxController {
+  final nameController = TextEditingController();
+  final ageController = TextEditingController();
+  final tensiController = TextEditingController();
+  final beratBadanController = TextEditingController();
+  final tinggiBadanController = TextEditingController();
+  final universitasController = TextEditingController();
+  final mulaiPraktikController = TextEditingController();
+  final jadwalOnlineController = TextEditingController();
+
+  final RxString photoBase64 = ''.obs;
+  final ImagePicker _picker = ImagePicker();
+
+  final isLoading = false.obs;
+  final isFetching = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadUserData();
+  }
+
+  void loadUserData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot doc = await Get.find<AuthService>()
+          .getUserReference(user.uid)
+          .get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        nameController.text = data['name'] ?? '';
+        ageController.text = (data['age'] ?? '').toString();
+        tensiController.text = data['tensi'] ?? '';
+        beratBadanController.text = (data['beratBadan'] ?? '').toString();
+        tinggiBadanController.text = (data['tinggiBadan'] ?? '').toString();
+        photoBase64.value = data['photoBase64'] ?? '';
+        universitasController.text = data['universitas'] ?? '';
+        mulaiPraktikController.text = data['mulai_praktik'] ?? '';
+        jadwalOnlineController.text = data['jadwal_online'] ?? '';
+      }
+    }
+    isFetching.value = false;
+  }
+
+  Future<void> pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 70,
+      );
+      if (image != null) {
+        final File file = File(image.path);
+        final bytes = await file.readAsBytes();
+        final base64String = base64Encode(bytes);
+        photoBase64.value = base64String;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Kesalahan',
+        'Gagal mengambil gambar',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+
+  Future<void> updateProfile() async {
+    if (nameController.text.trim().isEmpty ||
+        ageController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Input Kosong',
+        'Harap isi semua kolom.',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
+      return;
+    }
+
+    int? age = int.tryParse(ageController.text);
+    if (age == null || age < 5) {
+      Get.snackbar(
+        'Kesalahan',
+        'Usia tidak valid (Minimal 5 tahun).',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
+      return;
+    }
+
+    isLoading.value = true;
+
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await Get.find<AuthService>().getUserReference(user.uid).update({
+          'name': nameController.text.trim(),
+          'age': age,
+          'photoBase64': photoBase64.value,
+          'universitas': universitasController.text.trim(),
+          'mulai_praktik': mulaiPraktikController.text.trim(),
+          'jadwal_online': jadwalOnlineController.text.trim(),
+        });
+
+        Get.back();
+        Get.snackbar(
+          'Berhasil',
+          'Profil Anda telah diperbarui.',
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.green,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Gagal',
+        'Terjadi kesalahan saat memperbarui profil.',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}

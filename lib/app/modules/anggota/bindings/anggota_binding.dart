@@ -4,8 +4,6 @@ import '../controllers/anggota_controller.dart';
 class AnggotaBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<AnggotaController>(
-      () => AnggotaController(),
-    );
+    Get.lazyPut<AnggotaController>(() => AnggotaController());
   }
 }

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../services/auth_service.dart';
 
 class NotifikasiModel {
   final String id;
@@ -33,31 +34,34 @@ class NotifikasiController extends GetxController {
   void fetchNotifications() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(user.uid)
+      Get.find<AuthService>()
+          .getUserReference(user.uid)
           .collection('notifikasi')
           .orderBy('timestamp', descending: true)
           .snapshots()
-          .listen((snapshot) {
-        
-        List<NotifikasiModel> loadedNotifs = snapshot.docs.map((doc) {
-          final data = doc.data();
-          return NotifikasiModel(
-            id: doc.id,
-            title: data['title'] ?? 'Notifikasi',
-            message: data['message'] ?? '',
-            timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
-            isRead: data['isRead'] ?? false,
-            type: data['type'] ?? 'umum',
-          );
-        }).toList();
+          .listen(
+            (snapshot) {
+              List<NotifikasiModel> loadedNotifs = snapshot.docs.map((doc) {
+                final data = doc.data();
+                return NotifikasiModel(
+                  id: doc.id,
+                  title: data['title'] ?? 'Notifikasi',
+                  message: data['message'] ?? '',
+                  timestamp:
+                      (data['timestamp'] as Timestamp?)?.toDate() ??
+                      DateTime.now(),
+                  isRead: data['isRead'] ?? false,
+                  type: data['type'] ?? 'umum',
+                );
+              }).toList();
 
-        notifications.value = loadedNotifs;
-        isLoading.value = false;
-      }, onError: (e) {
-        isLoading.value = false;
-      });
+              notifications.value = loadedNotifs;
+              isLoading.value = false;
+            },
+            onError: (e) {
+              isLoading.value = false;
+            },
+          );
     } else {
       isLoading.value = false;
     }
@@ -66,9 +70,8 @@ class NotifikasiController extends GetxController {
   void markAsRead(String id) {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(user.uid)
+      Get.find<AuthService>()
+          .getUserReference(user.uid)
           .collection('notifikasi')
           .doc(id)
           .update({'isRead': true});
@@ -81,11 +84,12 @@ class NotifikasiController extends GetxController {
     // Cari notifikasi terbaru dengan tipe 'pengingat_harian' yang dikirim hari ini
     final now = DateTime.now();
     try {
-      return notifications.firstWhere((n) => 
-        n.type == 'pengingat_harian' && 
-        n.timestamp.year == now.year && 
-        n.timestamp.month == now.month && 
-        n.timestamp.day == now.day
+      return notifications.firstWhere(
+        (n) =>
+            n.type == 'pengingat_harian' &&
+            n.timestamp.year == now.year &&
+            n.timestamp.month == now.month &&
+            n.timestamp.day == now.day,
       );
     } catch (e) {
       return null;

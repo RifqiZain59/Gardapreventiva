@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../controllers/edit_profile_controller.dart';
 
@@ -8,190 +9,272 @@ class EditProfileView extends GetView<EditProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
-      appBar: AppBar(
-        title: const Text('Edit Profil', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        centerTitle: true,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
       ),
-      body: Obx(() {
-        if (controller.isFetching.value) {
-          return const Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32)));
-        }
-
-        return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: GestureDetector(
-                  onTap: controller.pickImage,
-                  child: Stack(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E7D32).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: controller.photoBase64.value.isNotEmpty
-                            ? CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.white,
-                                backgroundImage: MemoryImage(
-                                  const Base64Decoder().convert(controller.photoBase64.value)
-                                ),
-                              )
-                            : const CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.white,
-                                child: Icon(Icons.person_rounded, color: Color(0xFF2E7D32), size: 60),
-                              ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF4F6F8),
+        body: Column(
+          children: [
+            // Custom Header with Watermark
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 20,
+                bottom: 30,
+                left: 24,
+                right: 24,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2E7D32),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2E7D32).withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    right: -30,
+                    top: -20,
+                    child: Transform.rotate(
+                      angle: -0.2,
+                      child: Icon(
+                        Icons.manage_accounts_rounded,
+                        size: 150,
+                        color: Colors.white.withOpacity(0.1),
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Get.back(),
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E7D32),
+                            color: Colors.white.withOpacity(0.2),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
                           ),
-                          child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 20),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
-                      )
+                      ),
+                      const SizedBox(width: 16),
+                      const Text(
+                        'Edit Profile',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 22,
+                        ),
+                      ),
                     ],
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 32),
+            ),
 
-              _buildSectionTitle('Informasi Dasar'),
-              _buildCard(
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      controller: controller.nameController,
-                      label: 'Nama Lengkap',
-                      icon: Icons.person_outline_rounded,
-                    ),
-                    const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                    _buildTextField(
-                      controller: controller.ageController,
-                      label: 'Usia (Tahun)',
-                      icon: Icons.cake_outlined,
-                      keyboardType: TextInputType.number,
-                    ),
-                  ],
-                ),
-              ),
+            Expanded(
+              child: Obx(() {
+                if (controller.isFetching.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+                  );
+                }
 
-              const SizedBox(height: 24),
-
-              _buildSectionTitle('Riwayat Medis', subtitle: 'Bantu kami memberikan rekomendasi asupan natrium yang tepat.'),
-              _buildCard(
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      controller: controller.tensiController,
-                      label: 'Tekanan Darah (Tensi)',
-                      hint: 'Contoh: 120/80',
-                      icon: Icons.favorite_border_rounded,
-                      readOnly: true,
-                    ),
-                    const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                    _buildTextField(
-                      controller: controller.beratBadanController,
-                      label: 'Berat Badan (kg)',
-                      hint: 'Contoh: 65',
-                      icon: Icons.monitor_weight_outlined,
-                      keyboardType: TextInputType.number,
-                      readOnly: true,
-                    ),
-                    const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                    _buildTextField(
-                      controller: controller.tinggiBadanController,
-                      label: 'Tinggi Badan (cm)',
-                      hint: 'Contoh: 170',
-                      icon: Icons.height_outlined,
-                      keyboardType: TextInputType.number,
-                      readOnly: true,
-                    ),
-                    const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                return SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 24,
+                    bottom: MediaQuery.of(context).padding.bottom + 24,
+                  ),
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: GestureDetector(
+                          onTap: controller.pickImage,
+                          child: Stack(
                             children: [
-                              const Icon(Icons.health_and_safety_outlined, color: Colors.grey, size: 22),
-                              const SizedBox(width: 12),
-                              Text('Kondisi Kesehatan', style: TextStyle(color: Colors.grey.shade700, fontSize: 14)),
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF2E7D32,
+                                  ).withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: controller.photoBase64.value.isNotEmpty
+                                    ? CircleAvatar(
+                                        radius: 50,
+                                        backgroundColor: Colors.white,
+                                        backgroundImage: MemoryImage(
+                                          const Base64Decoder().convert(
+                                            controller.photoBase64.value,
+                                          ),
+                                        ),
+                                      )
+                                    : const CircleAvatar(
+                                        radius: 50,
+                                        backgroundColor: Colors.white,
+                                        child: Icon(
+                                          Icons.person_rounded,
+                                          color: Color(0xFF2E7D32),
+                                          size: 60,
+                                        ),
+                                      ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2E7D32),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt_rounded,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF4F6F8),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: controller.selectedCondition.value,
-                                isExpanded: true,
-                                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 15, fontWeight: FontWeight.w500),
-                                items: controller.conditions.map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    controller.selectedCondition.value = newValue;
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 40),
+                      const SizedBox(height: 32),
 
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 5,
-                    shadowColor: const Color(0xFF2E7D32).withOpacity(0.4),
+                      _buildSectionTitle('Informasi Dasar'),
+                      _buildCard(
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                              controller: controller.nameController,
+                              label: 'Nama Lengkap',
+                              icon: Icons.person_outline_rounded,
+                            ),
+                            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                            _buildTextField(
+                              controller: controller.ageController,
+                              label: 'Usia (Tahun)',
+                              icon: Icons.cake_outlined,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      _buildSectionTitle(
+                        'Riwayat Medis',
+                        subtitle:
+                            'Bantu kami memberikan rekomendasi asupan natrium yang tepat.',
+                      ),
+                      _buildCard(
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                              controller: controller.tensiController,
+                              label: 'Tekanan Darah (Tensi)',
+                              hint: 'Contoh: 120/80',
+                              icon: Icons.favorite_border_rounded,
+                              readOnly: true,
+                            ),
+                            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                            _buildTextField(
+                              controller: controller.beratBadanController,
+                              label: 'Berat Badan (kg)',
+                              hint: 'Contoh: 65',
+                              icon: Icons.monitor_weight_outlined,
+                              keyboardType: TextInputType.number,
+                              readOnly: true,
+                            ),
+                            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                            _buildTextField(
+                              controller: controller.tinggiBadanController,
+                              label: 'Tinggi Badan (cm)',
+                              hint: 'Contoh: 170',
+                              icon: Icons.height_outlined,
+                              keyboardType: TextInputType.number,
+                              readOnly: true,
+                            ),
+                            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                            _buildTextField(
+                              controller: TextEditingController(text: controller.selectedCondition.value),
+                              label: 'Kondisi Kesehatan',
+                              icon: Icons.health_and_safety_outlined,
+                              readOnly: true,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2E7D32),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 5,
+                            shadowColor: const Color(
+                              0xFF2E7D32,
+                            ).withOpacity(0.4),
+                          ),
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : controller.updateProfile,
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Update',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                  onPressed: controller.isLoading.value ? null : controller.updateProfile,
-                  child: controller.isLoading.value
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Simpan Perubahan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      }),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -203,7 +286,11 @@ class EditProfileView extends GetView<EditProfileController> {
         children: [
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.black87,
+            ),
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
@@ -211,7 +298,7 @@ class EditProfileView extends GetView<EditProfileController> {
               subtitle,
               style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -227,7 +314,7 @@ class EditProfileView extends GetView<EditProfileController> {
             color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: child,
@@ -247,18 +334,24 @@ class EditProfileView extends GetView<EditProfileController> {
       keyboardType: keyboardType,
       readOnly: readOnly,
       style: TextStyle(
-        fontSize: 15, 
+        fontSize: 15,
         fontWeight: FontWeight.w500,
         color: readOnly ? Colors.grey.shade600 : Colors.black87,
       ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.normal),
+        hintStyle: TextStyle(
+          color: Colors.grey.shade400,
+          fontWeight: FontWeight.normal,
+        ),
         labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
         prefixIcon: Icon(icon, color: Colors.grey, size: 22),
         border: InputBorder.none,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
       ),
     );
   }

@@ -26,7 +26,11 @@ class OnboardingView extends GetView<OnboardingController> {
               child: Obx(() {
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
-                  transform: Matrix4.translationValues(0, controller.currentPage.value * 30.0, 0),
+                  transform: Matrix4.translationValues(
+                    0,
+                    controller.currentPage.value * 30.0,
+                    0,
+                  ),
                   child: Icon(
                     Icons.health_and_safety_rounded,
                     size: 300,
@@ -35,7 +39,7 @@ class OnboardingView extends GetView<OnboardingController> {
                 );
               }),
             ),
-            
+
             SafeArea(
               child: Column(
                 children: [
@@ -44,10 +48,16 @@ class OnboardingView extends GetView<OnboardingController> {
                     alignment: Alignment.topRight,
                     child: TextButton(
                       onPressed: controller.skip,
-                      child: const Text('Lewati', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Lewati',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  
+
                   // PageView
                   Expanded(
                     child: PageView.builder(
@@ -64,7 +74,9 @@ class OnboardingView extends GetView<OnboardingController> {
                               Container(
                                 padding: const EdgeInsets.all(32),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF2E7D32).withOpacity(0.1),
+                                  color: const Color(
+                                    0xFF2E7D32,
+                                  ).withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -99,7 +111,7 @@ class OnboardingView extends GetView<OnboardingController> {
                       },
                     ),
                   ),
-                  
+
                   // Indikator Titik
                   Padding(
                     padding: const EdgeInsets.only(bottom: 40),
@@ -108,14 +120,17 @@ class OnboardingView extends GetView<OnboardingController> {
                       children: List.generate(
                         controller.onboardingPages.length,
                         (index) => Obx(() {
-                          bool isCurrent = controller.currentPage.value == index;
+                          bool isCurrent =
+                              controller.currentPage.value == index;
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             margin: const EdgeInsets.symmetric(horizontal: 4),
                             height: 8,
                             width: isCurrent ? 24 : 8,
                             decoration: BoxDecoration(
-                              color: isCurrent ? const Color(0xFF2E7D32) : Colors.grey.shade300,
+                              color: isCurrent
+                                  ? const Color(0xFF2E7D32)
+                                  : Colors.grey.shade300,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -123,30 +138,42 @@ class OnboardingView extends GetView<OnboardingController> {
                       ),
                     ),
                   ),
-                  
+
                   // Tombol Next/Mulai
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
+                    ),
                     child: SizedBox(
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2E7D32),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           elevation: 5,
                           shadowColor: const Color(0xFF2E7D32).withOpacity(0.5),
                         ),
                         onPressed: controller.nextPage,
-                        child: Obx(() => Text(
-                          controller.currentPage.value == controller.onboardingPages.length - 1
-                              ? 'Mulai Sekarang'
-                              : 'Selanjutnya',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                        )),
+                        child: Obx(
+                          () => Text(
+                            controller.currentPage.value ==
+                                    controller.onboardingPages.length - 1
+                                ? 'Mulai Sekarang'
+                                : 'Selanjutnya',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

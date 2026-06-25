@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 import 'app/routes/app_pages.dart';
+import 'app/services/auth_service.dart';
 
 import 'app/services/notification_service.dart';
 
@@ -16,6 +17,7 @@ void main() async {
       );
     }
     await NotificationService.init();
+    await Get.putAsync(() => AuthService().init());
   } catch (e) {
     debugPrint('Firebase gagal inisialisasi: $e');
   }

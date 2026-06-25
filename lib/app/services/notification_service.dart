@@ -9,13 +9,10 @@ class NotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
 
-    await _notificationsPlugin.initialize(
-      settings: initializationSettings,
-    );
+    await _notificationsPlugin.initialize(settings: initializationSettings);
 
     // Minta izin notifikasi (Android 13+)
     await Permission.notification.request();
@@ -24,19 +21,21 @@ class NotificationService {
   static Future<void> showLimitWarning(double current, double limit) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'garda_limit_channel',
-      'Peringatan Batas Natrium',
-      channelDescription: 'Notifikasi jika melewati batas asupan',
-      importance: Importance.max,
-      priority: Priority.high,
+          'garda_limit_channel',
+          'Peringatan Batas Natrium',
+          channelDescription: 'Notifikasi jika melewati batas asupan',
+          importance: Importance.max,
+          priority: Priority.high,
+        );
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
     );
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
 
     await _notificationsPlugin.show(
       id: 0,
       title: '⚠️ Batas Natrium Hampir Melewati Limit!',
-      body: 'Asupan hari ini: ${current.toInt()} mg (Batas: ${limit.toInt()} mg). Hati-hati ya!',
+      body:
+          'Asupan hari ini: ${current.toInt()} mg (Batas: ${limit.toInt()} mg). Hati-hati ya!',
       notificationDetails: platformChannelSpecifics,
     );
   }

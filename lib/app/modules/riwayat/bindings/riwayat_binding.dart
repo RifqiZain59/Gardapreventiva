@@ -4,8 +4,6 @@ import '../controllers/riwayat_controller.dart';
 class RiwayatBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<RiwayatController>(
-      () => RiwayatController(),
-    );
+    Get.lazyPut<RiwayatController>(() => RiwayatController());
   }
 }

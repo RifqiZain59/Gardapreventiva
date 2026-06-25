@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -21,135 +22,269 @@ class RegisterView extends GetView<RegisterController> {
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-            onPressed: () {
-              if (controller.currentPage.value == 1) {
-                controller.previousPage();
-              } else {
-                Get.back();
-              }
-            },
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.black87,
+            ),
+            onPressed: () => Get.back(),
           ),
         ),
         body: SafeArea(
-          child: PageView(
-            controller: controller.pageController,
-            physics: const NeverScrollableScrollPhysics(), // Supaya tidak bisa di-swipe secara manual
-            children: [
-              _buildStep1(),
-              _buildStep2(),
-            ],
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                const Text(
+                  'Buat Akun Baru',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF2E7D32),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Pilih peran dan lengkapi informasi Anda.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Role Toggle Bar
+                _buildRoleToggleBar(),
+                const SizedBox(height: 32),
+
+                // Common Fields
+                const Text(
+                  'Nama Lengkap',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                _buildTextField(
+                  controller.nameController,
+                  'Masukkan nama lengkap',
+                  Icons.person_outline_rounded,
+                  false,
+                ),
+                const SizedBox(height: 16),
+
+                const Text(
+                  'Email',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                _buildTextField(
+                  controller.emailController,
+                  'Masukkan email',
+                  Icons.email_outlined,
+                  false,
+                  TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+
+                const Text(
+                  'Usia (Tahun)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                _buildTextField(
+                  controller.ageController,
+                  'Contoh: 25',
+                  Icons.cake_outlined,
+                  false,
+                  TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+
+                const Text(
+                  'Kata Sandi',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                _buildTextField(
+                  controller.passwordController,
+                  'Buat kata sandi',
+                  Icons.lock_outline_rounded,
+                  true,
+                  TextInputType.text,
+                  controller.isPasswordObscure,
+                  controller.togglePassword,
+                ),
+                const SizedBox(height: 16),
+
+                const Text(
+                  'Konfirmasi Kata Sandi',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                _buildTextField(
+                  controller.confirmPasswordController,
+                  'Ulangi kata sandi',
+                  Icons.lock_outline_rounded,
+                  true,
+                  TextInputType.text,
+                  controller.isConfirmPasswordObscure,
+                  controller.toggleConfirmPassword,
+                ),
+                const SizedBox(height: 32),
+
+                // Dynamic Fields based on Role
+                Obx(
+                  () => controller.selectedRole.value == 'Pasien'
+                      ? _buildPasienFields()
+                      : _buildNakesFields(),
+                ),
+
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2E7D32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 5,
+                      shadowColor: const Color(0xFF2E7D32).withOpacity(0.5),
+                    ),
+                    onPressed: controller.register,
+                    child: Obx(
+                      () => controller.isLoading.value
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : const Text(
+                              'Selesai & Daftar',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Sudah punya akun?',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    TextButton(
+                      onPressed: controller.goToLogin,
+                      child: const Text(
+                        'Masuk di sini',
+                        style: TextStyle(
+                          color: Color(0xFF2E7D32),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildStep1() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          const Text(
-            'Langkah 1: Data Pribadi',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF2E7D32)),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Lengkapi informasi dasar Anda untuk memulai.',
-            style: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
-          ),
-          const SizedBox(height: 32),
-          
-          const Text('Nama Lengkap', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 8),
-          _buildTextField(controller.nameController, 'Masukkan nama lengkap', Icons.person_outline_rounded, false),
-          const SizedBox(height: 16),
-
-          const Text('Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 8),
-          _buildTextField(controller.emailController, 'Masukkan email', Icons.email_outlined, false, TextInputType.emailAddress),
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Usia (Tahun)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    const SizedBox(height: 8),
-                    _buildTextField(controller.ageController, 'Contoh: 25', Icons.cake_outlined, false, TextInputType.number),
-                  ],
+  Widget _buildRoleToggleBar() {
+    return Obx(() {
+      bool isPasien = controller.selectedRole.value == 'Pasien';
+      return Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => controller.selectedRole.value = 'Pasien',
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isPasien
+                        ? const Color(0xFF2E7D32)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    'Pasien',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isPasien ? Colors.white : Colors.grey,
+                    ),
+                  ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          const Text('Kata Sandi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 8),
-          _buildTextField(controller.passwordController, 'Buat kata sandi', Icons.lock_outline_rounded, true, TextInputType.text, controller.isPasswordObscure, controller.togglePassword),
-          const SizedBox(height: 16),
-
-          const Text('Konfirmasi Kata Sandi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 8),
-          _buildTextField(controller.confirmPasswordController, 'Ulangi kata sandi', Icons.lock_outline_rounded, true, TextInputType.text, controller.isConfirmPasswordObscure, controller.toggleConfirmPassword),
-          
-          const SizedBox(height: 40),
-          SizedBox(
-            width: double.infinity,
-            height: 55,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E7D32),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 5,
-                shadowColor: const Color(0xFF2E7D32).withOpacity(0.5),
-              ),
-              onPressed: controller.nextPage,
-              child: const Text('Selanjutnya', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
             ),
-          ),
-          
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Sudah punya akun?', style: TextStyle(color: Colors.grey)),
-              TextButton(
-                onPressed: controller.goToLogin,
-                child: const Text('Masuk di sini', style: TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
-              )
-            ],
-          ),
-          const SizedBox(height: 40),
-        ],
-      ),
-    );
+            Expanded(
+              child: GestureDetector(
+                onTap: () => controller.selectedRole.value = 'Tenaga Kesehatan',
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: !isPasien
+                        ? const Color(0xFF2E7D32)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    'Tenaga Kesehatan',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: !isPasien ? Colors.white : Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildStep2() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          const Text(
-            'Langkah 2: Kondisi Kesehatan',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF2E7D32)),
+  Widget _buildPasienFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Kondisi Kesehatan',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF2E7D32),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Pilih kondisi kesehatan Anda saat ini agar kami dapat menyesuaikan rekomendasi batasan natrium yang tepat.',
-            style: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
-          ),
-          const SizedBox(height: 32),
-          
-          Obx(() => Column(
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Pilih kondisi kesehatan Anda saat ini untuk rekomendasi asupan natrium.',
+          style: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
+        ),
+        const SizedBox(height: 16),
+
+        Obx(
+          () => Column(
             children: controller.conditions.map((condition) {
               bool isSelected = controller.selectedCondition.value == condition;
               return GestureDetector(
@@ -160,9 +295,13 @@ class RegisterView extends GetView<RegisterController> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF2E7D32).withOpacity(0.1) : Colors.white,
+                    color: isSelected
+                        ? const Color(0xFF2E7D32).withOpacity(0.1)
+                        : Colors.white,
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF2E7D32) : Colors.grey.shade300,
+                      color: isSelected
+                          ? const Color(0xFF2E7D32)
+                          : Colors.grey.shade300,
                       width: isSelected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -170,8 +309,12 @@ class RegisterView extends GetView<RegisterController> {
                   child: Row(
                     children: [
                       Icon(
-                        isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                        color: isSelected ? const Color(0xFF2E7D32) : Colors.grey,
+                        isSelected
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_off,
+                        color: isSelected
+                            ? const Color(0xFF2E7D32)
+                            : Colors.grey,
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -179,8 +322,12 @@ class RegisterView extends GetView<RegisterController> {
                           condition,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? const Color(0xFF2E7D32) : Colors.black87,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? const Color(0xFF2E7D32)
+                                : Colors.black87,
                           ),
                         ),
                       ),
@@ -189,39 +336,102 @@ class RegisterView extends GetView<RegisterController> {
                 ),
               );
             }).toList(),
-          )),
+          ),
+        ),
+      ],
+    );
+  }
 
-          const SizedBox(height: 40),
-          SizedBox(
-            width: double.infinity,
-            height: 55,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E7D32),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 5,
-                shadowColor: const Color(0xFF2E7D32).withOpacity(0.5),
+  Widget _buildNakesFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Data Profesi',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF2E7D32),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Lengkapi nomor STR dan unggah bukti STR untuk verifikasi profesi.',
+          style: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
+        ),
+        const SizedBox(height: 16),
+
+        const Text(
+          'Nomor STR',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        const SizedBox(height: 8),
+        _buildTextField(
+          controller.strController,
+          'Masukkan Nomor STR',
+          Icons.badge_outlined,
+          false,
+        ),
+        const SizedBox(height: 24),
+
+        const Text(
+          'Foto Bukti STR',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: controller.pickStrImage,
+          child: Obx(
+            () => Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FA),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.grey.shade300,
+                  style: BorderStyle.solid,
+                ),
               ),
-              onPressed: controller.register,
-              child: Obx(() => controller.isLoading.value 
-                ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                : const Text('Selesai & Daftar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))
-              ),
+              child: controller.strImageBase64.value.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.memory(
+                        base64Decode(controller.strImageBase64.value),
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.camera_alt_outlined,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Ketuk untuk mengunggah foto',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
             ),
           ),
-          const SizedBox(height: 40),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildTextField(
-    TextEditingController txtController, 
-    String hint, 
-    IconData icon, 
-    bool isPassword, 
-    [TextInputType type = TextInputType.text, RxBool? obscureState, VoidCallback? onToggleObscure]
-  ) {
+    TextEditingController txtController,
+    String hint,
+    IconData icon,
+    bool isPassword, [
+    TextInputType type = TextInputType.text,
+    RxBool? obscureState,
+    VoidCallback? onToggleObscure,
+  ]) {
     Widget buildTextFieldWidget(bool isObscured) {
       return TextField(
         controller: txtController,
@@ -231,7 +441,8 @@ class RegisterView extends GetView<RegisterController> {
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
           prefixIcon: Icon(icon, color: Colors.grey),
-          suffixIcon: isPassword && obscureState != null && onToggleObscure != null
+          suffixIcon:
+              isPassword && obscureState != null && onToggleObscure != null
               ? IconButton(
                   icon: Icon(
                     isObscured ? Icons.visibility_off : Icons.visibility,
@@ -241,7 +452,10 @@ class RegisterView extends GetView<RegisterController> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
         ),
       );
     }

@@ -40,8 +40,16 @@ class SplashView extends GetView<SplashController> {
                       Stack(
                         alignment: Alignment.center,
                         children: [
-                          Icon(Icons.monitor_heart_rounded, size: 120, color: Colors.white.withOpacity(0.2)),
-                          const Icon(Icons.health_and_safety_rounded, size: 80, color: Colors.white),
+                          Icon(
+                            Icons.monitor_heart_rounded,
+                            size: 120,
+                            color: Colors.white.withOpacity(0.2),
+                          ),
+                          const Icon(
+                            Icons.health_and_safety_rounded,
+                            size: 80,
+                            color: Colors.white,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 24),

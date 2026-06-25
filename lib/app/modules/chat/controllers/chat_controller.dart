@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../services/auth_service.dart';
 
 class ChatMessage {
   final String? id;
@@ -23,21 +24,49 @@ class ChatMessage {
 }
 
 class ChatController extends GetxController {
+  final isLoading = true.obs;
+  final nakesList = <Map<String, dynamic>>[].obs;
+  
   final messages = <ChatMessage>[].obs;
-  final isLoading = false.obs;
-
-  // Live Chat Data
   final selectedDoctor = Rxn<Map<String, dynamic>>();
   StreamSubscription<QuerySnapshot>? _chatSubscription;
-
-  // List of doctors
-  final doctors = <Map<String, dynamic>>[].obs;
-  final isLoadingDoctors = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    _fetchDoctors();
+    fetchNakes();
+  }
+
+  void fetchNakes() {
+    isLoading.value = true;
+    FirebaseFirestore.instance
+        .collection('mobile')
+        .doc('roles')
+        .collection('tenaga_kesehatan')
+        .snapshots()
+        .listen((snapshot) {
+      nakesList.value = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+      isLoading.value = false;
+    }, onError: (e) {
+      Get.snackbar('Error', 'Gagal memuat daftar dokter: $e');
+      isLoading.value = false;
+    });
+  }
+
+  Future<void> openChatWithDoctor(Map<String, dynamic> doctor) async {
+    selectedDoctor.value = doctor;
+    messages.clear();
+    _listenToFirebaseChat();
+  }
+
+  void exitChat() {
+    _chatSubscription?.cancel();
+    selectedDoctor.value = null;
+    messages.clear();
   }
 
   void sendMessage(String text) async {
@@ -51,45 +80,6 @@ class ChatController extends GetxController {
       }
       _sendToFirebase(text);
     }
-  }
-
-  Future<void> _fetchDoctors() async {
-    if (doctors.isNotEmpty) return;
-
-    isLoadingDoctors.value = true;
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('website')
-          .get();
-
-      print("DOKTER DEBUG: Found ${snapshot.docs.length} docs in website collection");
-      
-      final List<Map<String, dynamic>> tempDoctors = [];
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        final peran = (data['peran'] ?? '').toString().toLowerCase();
-        if (peran == 'dokter') {
-          tempDoctors.add({'id': doc.id, ...data});
-        }
-      }
-
-      doctors.value = tempDoctors;
-    } catch (e) {
-      print("Error fetching doctors: $e");
-    }
-    isLoadingDoctors.value = false;
-  }
-
-  Future<void> openChatWithDoctor(Map<String, dynamic> doctor) async {
-    selectedDoctor.value = doctor;
-    messages.clear();
-    _listenToFirebaseChat();
-  }
-
-  void exitChat() {
-    _chatSubscription?.cancel();
-    selectedDoctor.value = null;
-    messages.clear();
   }
 
   Future<void> _sendToFirebase(String text) async {
@@ -109,18 +99,19 @@ class ChatController extends GetxController {
     };
 
     try {
-      // Simpan di sub-collection mobile
-      await FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(userId)
+      // Simpan di sub-collection pasien
+      await Get.find<AuthService>()
+          .getUserReference(userId)
           .collection('chats')
           .doc(doctorId)
           .collection('messages')
           .add(messageData);
 
-      // Simpan di sub-collection website (untuk dokter)
+      // Simpan di sub-collection nakes
       await FirebaseFirestore.instance
-          .collection('website')
+          .collection('mobile')
+          .doc('roles')
+          .collection('tenaga_kesehatan')
           .doc(doctorId)
           .collection('chats')
           .doc(userId)
@@ -140,9 +131,8 @@ class ChatController extends GetxController {
 
     _chatSubscription?.cancel();
 
-    final query = FirebaseFirestore.instance
-        .collection('mobile')
-        .doc(userId)
+    final query = Get.find<AuthService>()
+        .getUserReference(userId)
         .collection('chats')
         .doc(doctorId)
         .collection('messages')
@@ -150,7 +140,7 @@ class ChatController extends GetxController {
 
     _chatSubscription = query.snapshots().listen((snapshot) {
       final List<ChatMessage> newMessages = [];
-      
+
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final text = data['text'] ?? '';
@@ -158,23 +148,28 @@ class ChatController extends GetxController {
         final isUser = senderId == userId;
         final ts = data['timestamp'] as Timestamp?;
         final time = ts?.toDate() ?? DateTime.now();
-        final senderName = data['senderName'] ?? (isUser ? 'Pasien' : (selectedDoctor.value?['username'] ?? 'Dokter'));
-        final senderRole = data['senderRole'] ?? (isUser ? 'pasien' : (selectedDoctor.value?['peran'] ?? 'dokter'));
+        final senderName =
+            data['senderName'] ??
+            (isUser
+                ? 'Pasien'
+                : (selectedDoctor.value?['name'] ?? 'Nakes'));
+        final senderRole =
+            data['senderRole'] ??
+            (isUser ? 'pasien' : 'nakes');
 
         newMessages.add(
           ChatMessage(
             id: doc.id,
-            text: text, 
-            isUser: isUser, 
+            text: text,
+            isUser: isUser,
             time: time,
             senderName: senderName,
-            senderRole: senderRole
-          )
+            senderRole: senderRole,
+          ),
         );
       }
-      
-      // Tambahkan pesan sistem di bagian paling bawah (index paling akhir karena reverse list)
-      final docName = selectedDoctor.value?['username'] ?? 'Dokter';
+
+      final docName = selectedDoctor.value?['name'] ?? 'Dokter';
       newMessages.add(
         ChatMessage(
           id: 'system',
@@ -183,7 +178,7 @@ class ChatController extends GetxController {
           time: DateTime.now(),
           senderName: 'Sistem',
           senderRole: 'sistem',
-        )
+        ),
       );
 
       messages.value = newMessages;
@@ -192,63 +187,61 @@ class ChatController extends GetxController {
 
   Future<void> deleteSingleMessage(String msgId) async {
     final user = FirebaseAuth.instance.currentUser;
-    final userId = user?.uid;
-    final doctorId = selectedDoctor.value?['id'];
+    final userId = user?.uid ?? 'anonymous';
+    final doctorId = selectedDoctor.value?['id'] ?? '';
 
-    if (userId == null || doctorId == null || msgId == 'system') return;
+    if (doctorId.isEmpty) return;
 
     try {
-      // Hapus dari sisi mobile
-      await FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(userId)
+      await Get.find<AuthService>()
+          .getUserReference(userId)
           .collection('chats')
           .doc(doctorId)
           .collection('messages')
           .doc(msgId)
           .delete();
-
-      // Hapus dari sisi website (opsional, tapi baik untuk konsistensi)
-      await FirebaseFirestore.instance
-          .collection('website')
-          .doc(doctorId)
-          .collection('chats')
-          .doc(userId)
-          .collection('messages')
-          .doc(msgId)
-          .delete();
-
-      Get.snackbar('Berhasil', 'Pesan berhasil dihapus', backgroundColor: Colors.green.withOpacity(0.1), colorText: Colors.green);
+      
+      Get.snackbar(
+        'Sukses',
+        'Pesan berhasil dihapus',
+        backgroundColor: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar('Error', 'Gagal menghapus pesan: $e');
+      Get.snackbar(
+        'Error',
+        'Gagal menghapus pesan: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
   Future<void> deleteChat() async {
     final user = FirebaseAuth.instance.currentUser;
-    final userId = user?.uid;
-    final doctorId = selectedDoctor.value?['id'];
+    final userId = user?.uid ?? 'anonymous';
+    final doctorId = selectedDoctor.value?['id'] ?? '';
 
-    if (userId == null || doctorId == null) return;
+    if (doctorId.isEmpty) return;
 
     try {
-      final messagesRef = FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(userId)
+      final batch = FirebaseFirestore.instance.batch();
+      final messagesRef = Get.find<AuthService>()
+          .getUserReference(userId)
           .collection('chats')
           .doc(doctorId)
           .collection('messages');
 
       final snapshot = await messagesRef.get();
       for (var doc in snapshot.docs) {
-        await doc.reference.delete();
+        batch.delete(doc.reference);
       }
+      await batch.commit();
 
       messages.clear();
-      final docName = selectedDoctor.value?['username'] ?? 'Dokter';
-      messages.insert(
-        0,
+      final docName = selectedDoctor.value?['name'] ?? 'Dokter';
+      messages.add(
         ChatMessage(
+          id: 'system',
           text: "--- Chat dengan $docName telah dihapus ---",
           isUser: false,
           time: DateTime.now(),
@@ -256,8 +249,12 @@ class ChatController extends GetxController {
           senderRole: 'sistem',
         ),
       );
-      
-      Get.snackbar('Berhasil', 'Chat berhasil dihapus', backgroundColor: Get.theme.primaryColor.withOpacity(0.1));
+
+      Get.snackbar(
+        'Berhasil',
+        'Chat berhasil dihapus',
+        backgroundColor: Get.theme.primaryColor.withOpacity(0.1),
+      );
     } catch (e) {
       Get.snackbar('Error', 'Gagal menghapus chat: $e');
     }

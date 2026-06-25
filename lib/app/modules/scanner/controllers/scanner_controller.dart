@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';import 'package:permission_handler/permission_handler.dart';
+import '../../../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -39,10 +41,11 @@ class ScannerController extends GetxController {
   final RxDouble scannedSodiumPerServing = 0.0.obs;
   final RxDouble scannedServingsPerPack = 0.0.obs;
   final RxDouble servingsMultiplier = 1.0.obs;
-  
+
   final RxString _packageName = "".obs;
-  
-  double get totalCalculatedSodium => scannedSodiumPerServing.value * servingsMultiplier.value;
+
+  double get totalCalculatedSodium =>
+      scannedSodiumPerServing.value * servingsMultiplier.value;
 
   @override
   void onInit() {
@@ -50,19 +53,25 @@ class ScannerController extends GetxController {
     if (Get.arguments != null && Get.arguments is String) {
       _packageName.value = Get.arguments as String;
     }
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      systemNavigationBarColor: Color(0xFFFFFFFF), // Putih
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        systemNavigationBarColor: Color(0xFFFFFFFF), // Putih
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
     _initCamera();
   }
 
   @override
   void onClose() {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      systemNavigationBarColor: Color(0xFFF4F6F8), // Atau transparan / default
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        systemNavigationBarColor: Color(
+          0xFFF4F6F8,
+        ), // Atau transparan / default
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
     cameraController?.dispose();
     _closeTimer?.cancel();
     super.onClose();
@@ -79,7 +88,7 @@ class ScannerController extends GetxController {
       final cameras = await availableCameras();
       if (cameras.isNotEmpty) {
         cameraController = CameraController(
-          cameras.first, 
+          cameras.first,
           ResolutionPreset.high,
           enableAudio: false,
         );
@@ -96,7 +105,8 @@ class ScannerController extends GetxController {
   }
 
   Future<void> performScan({required bool simulate}) async {
-    if (cameraController == null || !cameraController!.value.isInitialized) return;
+    if (cameraController == null || !cameraController!.value.isInitialized)
+      return;
 
     isScanning.value = true;
     hasResult.value = false;
@@ -107,34 +117,44 @@ class ScannerController extends GetxController {
 
       // Gunakan ML Kit Text Recognizer
       final inputImage = InputImage.fromFilePath(imageFile.path);
-      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-      final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+      final textRecognizer = TextRecognizer(
+        script: TextRecognitionScript.latin,
+      );
+      final RecognizedText recognizedText = await textRecognizer.processImage(
+        inputImage,
+      );
 
       String allText = recognizedText.text.toLowerCase();
 
       // Regex untuk mendeteksi Sodium/Natrium/Garam dan angkanya
       // Skip semua karakter non-angka hingga menemukan angka pertama.
-      RegExp regExp = RegExp(r'(?:natrium|sodium|garam)[^\d]*?([0-9]+(?:\.[0-9]+)?)', caseSensitive: false);
+      RegExp regExp = RegExp(
+        r'(?:natrium|sodium|garam)[^\d]*?([0-9]+(?:\.[0-9]+)?)',
+        caseSensitive: false,
+      );
       final match = regExp.firstMatch(allText);
 
       if (match != null && match.groupCount >= 1) {
         String numStr = match.group(1)!;
         double sodiumValue = double.tryParse(numStr) ?? 0.0;
         scannedSodiumPerServing.value = sodiumValue;
-        scannedFoodName.value = _packageName.value.isNotEmpty ? _packageName.value : "Produk Pindaian";
+        scannedFoodName.value = _packageName.value.isNotEmpty
+            ? _packageName.value
+            : "Produk Pindaian";
         scannedServingSize.value = "1 Sajian";
         scannedServingsPerPack.value = 1.0; // Default 1 sajian
       } else {
         // Jika gagal deteksi otomatis
         scannedSodiumPerServing.value = 0.0;
-        scannedFoodName.value = _packageName.value.isNotEmpty ? _packageName.value : "Tidak Terdeteksi";
+        scannedFoodName.value = _packageName.value.isNotEmpty
+            ? _packageName.value
+            : "Tidak Terdeteksi";
         scannedServingSize.value = "-";
         scannedServingsPerPack.value = 1.0;
       }
 
       servingsMultiplier.value = 1.0;
       await textRecognizer.close();
-
     } catch (e) {
       print("Error scanning image: $e");
       scannedSodiumPerServing.value = 0.0;
@@ -178,16 +198,16 @@ class ScannerController extends GetxController {
 
   Future<void> logScannedFood() async {
     _closeTimer?.cancel();
-    
+
     // Auto-save to Firebase
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final sodiumValue = totalCalculatedSodium;
-        
+
         final batch = FirebaseFirestore.instance.batch();
-        final userRef = FirebaseFirestore.instance.collection('mobile').doc(user.uid);
-        
+        final userRef = Get.find<AuthService>().getUserReference(user.uid);
+
         final labelRef = userRef.collection('label gizi makanan').doc();
         batch.set(labelRef, {
           'name': scannedFoodName.value,
@@ -196,9 +216,7 @@ class ScannerController extends GetxController {
           'created_at': Timestamp.now(),
         });
 
-        batch.update(userRef, {
-          'natrium': FieldValue.increment(sodiumValue),
-        });
+        batch.update(userRef, {'natrium': FieldValue.increment(sodiumValue)});
 
         await batch.commit();
 

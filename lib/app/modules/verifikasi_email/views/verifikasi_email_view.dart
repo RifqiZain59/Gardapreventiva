@@ -10,7 +10,10 @@ class VerifikasiEmailView extends GetView<VerifikasiEmailController> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Verifikasi Email', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Verifikasi Email',
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -30,21 +33,36 @@ class VerifikasiEmailView extends GetView<VerifikasiEmailController> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 40,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.mark_email_unread_rounded, size: 100, color: Color(0xFF2E7D32)),
+                  const Icon(
+                    Icons.mark_email_unread_rounded,
+                    size: 100,
+                    color: Color(0xFF2E7D32),
+                  ),
                   const SizedBox(height: 32),
                   const Text(
                     'Cek Kotak Masuk Anda!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black87),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
                     'Kami telah mengirimkan tautan verifikasi ke alamat email Anda. Silakan klik tautan tersebut untuk mengaktifkan akun Anda.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      height: 1.5,
+                    ),
                   ),
                   const SizedBox(height: 40),
                   SizedBox(
@@ -53,23 +71,55 @@ class VerifikasiEmailView extends GetView<VerifikasiEmailController> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2E7D32),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                       onPressed: controller.checkEmailVerified,
-                      child: const Text('Saya Sudah Verifikasi', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: const Text(
+                        'Saya Sudah Verifikasi',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Obx(() => TextButton(
-                    onPressed: controller.isLoading.value ? null : controller.resendVerificationEmail,
-                    child: controller.isLoading.value 
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Color(0xFF2E7D32), strokeWidth: 2))
-                      : const Text('Kirim Ulang Email', style: TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
-                  )),
+                  Obx(
+                    () => TextButton(
+                      onPressed: controller.isLoading.value
+                          ? null
+                          : controller.resendVerificationEmail,
+                      child: controller.isLoading.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Color(0xFF2E7D32),
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Kirim Ulang Email',
+                              style: TextStyle(
+                                color: Color(0xFF2E7D32),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: controller.goToLogin,
-                    child: const Text('Kembali ke Login', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Kembali ke Login',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),

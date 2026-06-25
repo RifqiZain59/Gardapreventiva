@@ -24,9 +24,9 @@ class ProfileView extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light, 
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F6F8), 
+        backgroundColor: const Color(0xFFF4F6F8),
         body: Column(
           children: [
             _buildTopGreenHeader(context),
@@ -37,127 +37,69 @@ class ProfileView extends GetView<ProfileController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-              // --- GRAFIK KONDISI JANTUNG (EKG) ---
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'STATUS KESEHATAN SAAT INI',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textSecondary, letterSpacing: 1.2),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    GetX<ProfileController>(
-                      builder: (profileCtrl) {
-                        double current = profileCtrl.totalNatrium.value.toDouble();
-                        double limit = 2000; // Default limit
-                        if (profileCtrl.healthTargetText.value.isNotEmpty) {
-                          limit = double.tryParse(profileCtrl.healthTargetText.value) ?? 2000;
-                        }
-                        
-                        double ratio = limit > 0 ? (current / limit) : 0;
-                        Color statusColor;
-                        IconData statusIcon;
-                        String statusText;
-
-                        if (ratio >= 0.9) {
-                          statusColor = AppColors.danger;
-                          statusIcon = Icons.dangerous_rounded;
-                          statusText = "BAHAYA (Over Limit)";
-                        } else if (ratio >= 0.6) {
-                          statusColor = AppColors.warning;
-                          statusIcon = Icons.warning_amber_rounded;
-                          statusText = "WASPADA (Mendekati Limit)";
-                        } else {
-                          statusColor = AppColors.safe;
-                          statusIcon = Icons.check_circle_rounded;
-                          statusText = "AMAN (Normal)";
-                        }
-
-                        return AnimatedProfileEkgCard(
-                          ratio: ratio,
-                          statusColor: statusColor,
-                          statusIcon: statusIcon,
-                          statusText: statusText,
-                          currentSodium: current,
-                          limitSodium: limit,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'PREFERENSI & DATA',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textSecondary, letterSpacing: 1.2),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.glassBorder),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          )
-                        ]
-                      ),
+                    // --- GRAFIK KONDISI JANTUNG (EKG) ---
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSimpleMenuTile(
-                            icon: Icons.person_outline_rounded, 
-                            title: "Edit Profil", 
-                            subtitle: "Perbarui data diri",
-                            onTap: () => Get.toNamed(Routes.EDIT_PROFILE),
-                          ),
-                          const Divider(height: 1, indent: 56, color: AppColors.glassBorder),
-                          _buildSimpleMenuTile(
-                            icon: Icons.history_rounded, 
-                            title: "Riwayat Login", 
-                            subtitle: "Log masuk perangkat",
-                            onTap: () => Get.toNamed(Routes.RIWAYAT_LOGIN),
-                          ),
-                          const Divider(height: 1, indent: 56, color: AppColors.glassBorder),
-                          _buildSimpleMenuTile(
-                            icon: Icons.picture_as_pdf_rounded, 
-                            title: "Ekspor Laporan Medis", 
-                            subtitle: "Unduh data format PDF",
-                            onTap: () => controller.showExportDialog()
-                          ),
-                          const Divider(height: 1, indent: 56, color: AppColors.glassBorder),
-                          _buildSimpleMenuTile(
-                            icon: Icons.notifications_active_rounded, 
-                            title: "Notifikasi Pengingat", 
-                            subtitle: "Pengingat selalu aktif",
-                            trailing: const Text(
-                              "Aktif",
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'STATUS KESEHATAN SAAT INI',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: AppColors.textSecondary,
+                                  letterSpacing: 1.2,
+                                ),
                               ),
-                            ),
-                            onTap: () {
-                              Get.snackbar(
-                                "Info",
-                                "Notifikasi pengingat diatur untuk selalu aktif secara permanen.",
-                                snackPosition: SnackPosition.BOTTOM,
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          GetX<ProfileController>(
+                            builder: (profileCtrl) {
+                              double current = profileCtrl.totalNatrium.value
+                                  .toDouble();
+                              double limit = 2000; // Default limit
+                              if (profileCtrl
+                                  .healthTargetText
+                                  .value
+                                  .isNotEmpty) {
+                                limit =
+                                    double.tryParse(
+                                      profileCtrl.healthTargetText.value,
+                                    ) ??
+                                    2000;
+                              }
+
+                              double ratio = limit > 0 ? (current / limit) : 0;
+                              Color statusColor;
+                              IconData statusIcon;
+                              String statusText;
+
+                              if (ratio >= 0.9) {
+                                statusColor = AppColors.danger;
+                                statusIcon = Icons.dangerous_rounded;
+                                statusText = "BAHAYA (Over Limit)";
+                              } else if (ratio >= 0.6) {
+                                statusColor = AppColors.warning;
+                                statusIcon = Icons.warning_amber_rounded;
+                                statusText = "WASPADA (Mendekati Limit)";
+                              } else {
+                                statusColor = AppColors.safe;
+                                statusIcon = Icons.check_circle_rounded;
+                                statusText = "AMAN (Normal)";
+                              }
+
+                              return AnimatedProfileEkgCard(
+                                ratio: ratio,
+                                statusColor: statusColor,
+                                statusIcon: statusIcon,
+                                statusText: statusText,
+                                currentSodium: current,
+                                limitSodium: limit,
                               );
                             },
                           ),
@@ -165,60 +107,170 @@ class ProfileView extends GetView<ProfileController> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
-                    const Text(
-                      'LAINNYA',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textSecondary, letterSpacing: 1.2),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.glassBorder),
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSimpleMenuTile(
-                            icon: Icons.help_outline_rounded, 
-                            title: "Bantuan & Dukungan", 
-                            subtitle: "FAQ dan kontak kami",
-                            onTap: () => Get.toNamed(Routes.FAQ),
+                          const Text(
+                            'PREFERENSI & DATA',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.glassBorder),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                _buildSimpleMenuTile(
+                                  icon: Icons.person_outline_rounded,
+                                  title: "Edit Profil",
+                                  subtitle: "Perbarui data diri",
+                                  onTap: () =>
+                                      Get.toNamed(Routes.EDIT_PROFILE),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  indent: 56,
+                                  color: AppColors.glassBorder,
+                                ),
+                                _buildSimpleMenuTile(
+                                  icon: Icons.history_rounded,
+                                  title: "Riwayat Login",
+                                  subtitle: "Log masuk perangkat",
+                                  onTap: () =>
+                                      Get.toNamed(Routes.RIWAYAT_LOGIN),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  indent: 56,
+                                  color: AppColors.glassBorder,
+                                ),
+                                _buildSimpleMenuTile(
+                                  icon: Icons.assignment_ind_rounded,
+                                  title: "Catatan Nakes",
+                                  subtitle: "Lihat pesan dari tenaga kesehatan",
+                                  onTap: () => Get.toNamed(Routes.CATATAN_NAKES),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  indent: 56,
+                                  color: AppColors.glassBorder,
+                                ),
+                                _buildSimpleMenuTile(
+                                  icon: Icons.notifications_active_rounded,
+                                  title: "Notifikasi Pengingat",
+                                  subtitle: "Pengingat selalu aktif",
+                                  trailing: const Text(
+                                    "Aktif",
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Get.snackbar(
+                                      "Info",
+                                      "Notifikasi pengingat diatur untuk selalu aktif secara permanen.",
+                                      snackPosition: SnackPosition.BOTTOM,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+                          const Text(
+                            'LAINNYA',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.glassBorder),
+                            ),
+                            child: Column(
+                              children: [
+                                _buildSimpleMenuTile(
+                                  icon: Icons.help_outline_rounded,
+                                  title: "Bantuan & Dukungan",
+                                  subtitle: "FAQ dan kontak kami",
+                                  onTap: () => Get.toNamed(Routes.FAQ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  indent: 56,
+                                  color: AppColors.glassBorder,
+                                ),
+                                _buildSimpleMenuTile(
+                                  icon: Icons.info_outline_rounded,
+                                  title: "Tentang Aplikasi",
+                                  subtitle: "Informasi versi & detail",
+                                  onTap: () => Get.toNamed(Routes.TENTANG_APLIKASI),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+                          const Text(
+                            'AKUN',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.glassBorder),
+                            ),
+                            child: Column(
+                              children: [
+                                _buildSimpleMenuTile(
+                                  icon: Icons.logout_rounded,
+                                  title: "Keluar Akun",
+                                  subtitle: "Akhiri sesi saat ini",
+                                  textColor: AppColors.danger,
+                                  iconColor: AppColors.danger,
+                                  onTap: () => controller.confirmLogout(),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 24),
-                    const Text(
-                      'AKUN',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textSecondary, letterSpacing: 1.2),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.glassBorder),
-                      ),
-                      child: Column(
-                        children: [
-                          _buildSimpleMenuTile(
-                            icon: Icons.logout_rounded, 
-                            title: "Keluar Akun", 
-                            subtitle: "Akhiri sesi saat ini",
-                            textColor: AppColors.danger,
-                            iconColor: AppColors.danger,
-                            onTap: () => controller.confirmLogout(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
                   ],
                 ),
               ),
@@ -240,8 +292,8 @@ class ProfileView extends GetView<ProfileController> {
             color: AppColors.primary.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
-          )
-        ]
+          ),
+        ],
       ),
       child: Stack(
         children: [
@@ -251,17 +303,17 @@ class ProfileView extends GetView<ProfileController> {
             child: Transform.rotate(
               angle: -0.2,
               child: Icon(
-                Icons.health_and_safety_rounded, 
-                size: 280, 
-                color: Colors.white.withOpacity(0.06), 
+                Icons.health_and_safety_rounded,
+                size: 280,
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
           ),
-          
+
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 40, 24, 32), 
+              padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
               child: Column(
                 children: [
                   Row(
@@ -279,21 +331,31 @@ class ProfileView extends GetView<ProfileController> {
                                 radius: 36,
                                 backgroundColor: Colors.white,
                                 backgroundImage: MemoryImage(
-                                  const Base64Decoder().convert(controller.photoBase64.value)
+                                  const Base64Decoder().convert(
+                                    controller.photoBase64.value,
+                                  ),
                                 ),
                               );
                             } catch (e) {
                               return const CircleAvatar(
                                 radius: 36,
                                 backgroundColor: Colors.white,
-                                child: Icon(Icons.person_rounded, color: AppColors.primary, size: 45),
+                                child: Icon(
+                                  Icons.person_rounded,
+                                  color: AppColors.primary,
+                                  size: 45,
+                                ),
                               );
                             }
                           }
                           return const CircleAvatar(
                             radius: 36,
                             backgroundColor: Colors.white,
-                            child: Icon(Icons.person_rounded, color: AppColors.primary, size: 45),
+                            child: Icon(
+                              Icons.person_rounded,
+                              color: AppColors.primary,
+                              size: 45,
+                            ),
                           );
                         }),
                       ),
@@ -302,22 +364,37 @@ class ProfileView extends GetView<ProfileController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Obx(() => Text(
-                              controller.name.value, 
-                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 26, color: Colors.white),
-                            )),
+                            Obx(
+                              () => Text(
+                                controller.name.value,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 26,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Obx(() => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20)
+                            Obx(
+                              () => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  "Usia: ${controller.age.value} Tahun",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                              child: Text(
-                                "Usia: ${controller.age.value} Tahun", 
-                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                            )),
+                            ),
                           ],
                         ),
                       ),
@@ -325,21 +402,45 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 36),
 
-                  Obx(() => Container(
-                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                  Obx(
+                    () => Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildInnerStatItem(
+                              "Tekanan Darah",
+                              controller.bloodPressure.value,
+                              Icons.favorite_rounded,
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          Expanded(
+                            child: _buildInnerStatItem(
+                              "Target Natrium",
+                              "${controller.healthTargetText.value.isNotEmpty ? NumberFormat.decimalPattern('id').format(double.tryParse(controller.healthTargetText.value) ?? 2000) : '2.000'} mg",
+                              Icons.track_changes_rounded,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(child: _buildInnerStatItem("Tekanan Darah", controller.bloodPressure.value, Icons.favorite_rounded)),
-                        Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
-                        Expanded(child: _buildInnerStatItem("Target Natrium", "${controller.healthTargetText.value.isNotEmpty ? NumberFormat.decimalPattern('id').format(double.tryParse(controller.healthTargetText.value) ?? 2000) : '2.000'} mg", Icons.track_changes_rounded)),
-                      ],
-                    ),
-                  )),
+                  ),
                 ],
               ),
             ),
@@ -355,14 +456,22 @@ class ProfileView extends GetView<ProfileController> {
         Icon(icon, color: Colors.white.withOpacity(0.9), size: 24),
         const SizedBox(height: 8),
         Text(
-          value, 
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.white,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 4),
         Text(
-          title, 
-          style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600),
+          title,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.white.withOpacity(0.8),
+            fontWeight: FontWeight.w600,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -370,9 +479,9 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   Widget _buildSimpleMenuTile({
-    required IconData icon, 
-    required String title, 
-    String? subtitle, 
+    required IconData icon,
+    required String title,
+    String? subtitle,
     bool hideArrow = false,
     Widget? trailing,
     VoidCallback? onTap,
@@ -393,22 +502,33 @@ class ProfileView extends GetView<ProfileController> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textColor ?? AppColors.textPrimary),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: textColor ?? AppColors.textPrimary,
+                    ),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                  ]
+                  ],
                 ],
               ),
             ),
-            if (trailing != null) 
-              trailing 
+            if (trailing != null)
+              trailing
             else if (!hideArrow)
-              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 14),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Colors.grey,
+                size: 14,
+              ),
           ],
         ),
       ),
@@ -438,24 +558,29 @@ class AnimatedProfileEkgCard extends StatefulWidget {
   State<AnimatedProfileEkgCard> createState() => _AnimatedProfileEkgCardState();
 }
 
-class _AnimatedProfileEkgCardState extends State<AnimatedProfileEkgCard> with SingleTickerProviderStateMixin {
+class _AnimatedProfileEkgCardState extends State<AnimatedProfileEkgCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    int durationMs = widget.ratio >= 0.9 ? 3000 : (widget.ratio >= 0.6 ? 2500 : 800);
+    int durationMs = widget.ratio >= 0.9
+        ? 3000
+        : (widget.ratio >= 0.6 ? 2500 : 800);
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: durationMs),
     )..repeat();
   }
-  
+
   @override
   void didUpdateWidget(covariant AnimatedProfileEkgCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.ratio != widget.ratio) {
-      int durationMs = widget.ratio >= 0.9 ? 3000 : (widget.ratio >= 0.6 ? 2500 : 800);
+      int durationMs = widget.ratio >= 0.9
+          ? 3000
+          : (widget.ratio >= 0.6 ? 2500 : 800);
       _controller.duration = Duration(milliseconds: durationMs);
       if (_controller.isAnimating) {
         _controller.repeat();
@@ -478,22 +603,27 @@ class _AnimatedProfileEkgCardState extends State<AnimatedProfileEkgCard> with Si
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        double glowOpacity = isSafe ? 0.0 : (0.1 + 0.3 * (0.5 - (0.5 - _controller.value).abs()) * 2);
+        double glowOpacity = isSafe
+            ? 0.0
+            : (0.1 + 0.3 * (0.5 - (0.5 - _controller.value).abs()) * 2);
 
         return Container(
           height: 180,
           decoration: BoxDecoration(
             color: const Color(0xFF1E1E1E),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: widget.statusColor.withOpacity(isSafe ? 0.3 : 0.8), width: 1.5),
+            border: Border.all(
+              color: widget.statusColor.withOpacity(isSafe ? 0.3 : 0.8),
+              width: 1.5,
+            ),
             boxShadow: [
               if (!isSafe)
                 BoxShadow(
                   color: widget.statusColor.withOpacity(glowOpacity),
                   blurRadius: 15,
                   spreadRadius: 2,
-                )
-            ]
+                ),
+            ],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(18),
@@ -509,11 +639,19 @@ class _AnimatedProfileEkgCardState extends State<AnimatedProfileEkgCard> with Si
                         children: [
                           Row(
                             children: [
-                              Icon(widget.statusIcon, color: widget.statusColor, size: 24),
+                              Icon(
+                                widget.statusIcon,
+                                color: widget.statusColor,
+                                size: 24,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 widget.statusText,
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: widget.statusColor),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: widget.statusColor,
+                                ),
                               ),
                             ],
                           ),
@@ -522,14 +660,22 @@ class _AnimatedProfileEkgCardState extends State<AnimatedProfileEkgCard> with Si
                             children: [
                               Text(
                                 '${NumberFormat.decimalPattern('id').format(widget.currentSodium.toInt())} mg',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: widget.statusColor),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: widget.statusColor,
+                                ),
                               ),
                               Text(
                                 '/ ${NumberFormat.decimalPattern('id').format(widget.limitSodium.toInt())} mg',
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textSecondary),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -539,7 +685,9 @@ class _AnimatedProfileEkgCardState extends State<AnimatedProfileEkgCard> with Si
                           value: widget.ratio,
                           minHeight: 8,
                           backgroundColor: Colors.white.withOpacity(0.1),
-                          valueColor: AlwaysStoppedAnimation<Color>(widget.statusColor),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            widget.statusColor,
+                          ),
                         ),
                       ),
                     ],
@@ -595,7 +743,11 @@ class ProfileEkgPainter extends CustomPainter {
   final Color color;
   final bool isFlatline;
 
-  ProfileEkgPainter({required this.animationValue, required this.color, this.isFlatline = false});
+  ProfileEkgPainter({
+    required this.animationValue,
+    required this.color,
+    this.isFlatline = false,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -608,33 +760,37 @@ class ProfileEkgPainter extends CustomPainter {
     final path = Path();
     double width = size.width;
     double height = size.height;
-    double midY = height - 40; // Diletakkan agak ke bawah 
-    
+    double midY = height - 40; // Diletakkan agak ke bawah
+
     double patternWidth = 120.0;
     double shift = animationValue * patternWidth;
 
     path.moveTo(-patternWidth, midY);
 
-    for (double x = -patternWidth; x < width + patternWidth; x += patternWidth) {
+    for (
+      double x = -patternWidth;
+      x < width + patternWidth;
+      x += patternWidth
+    ) {
       double currentX = x - shift;
-      
+
       if (isFlatline) {
-        path.lineTo(currentX + 40, midY); 
-        path.lineTo(currentX + 45, midY - 4); 
-        path.lineTo(currentX + 50, midY + 4); 
-        path.lineTo(currentX + 55, midY); 
+        path.lineTo(currentX + 40, midY);
+        path.lineTo(currentX + 45, midY - 4);
+        path.lineTo(currentX + 50, midY + 4);
+        path.lineTo(currentX + 55, midY);
         path.lineTo(currentX + patternWidth, midY);
       } else {
-        path.lineTo(currentX + 20, midY); 
+        path.lineTo(currentX + 20, midY);
         path.quadraticBezierTo(currentX + 25, midY - 5, currentX + 30, midY);
-        path.lineTo(currentX + 40, midY); 
-        path.lineTo(currentX + 45, midY + 10); 
-        path.lineTo(currentX + 55, midY - 40); 
-        path.lineTo(currentX + 65, midY + 15); 
-        path.lineTo(currentX + 70, midY); 
-        path.lineTo(currentX + 80, midY); 
+        path.lineTo(currentX + 40, midY);
+        path.lineTo(currentX + 45, midY + 10);
+        path.lineTo(currentX + 55, midY - 40);
+        path.lineTo(currentX + 65, midY + 15);
+        path.lineTo(currentX + 70, midY);
+        path.lineTo(currentX + 80, midY);
         path.quadraticBezierTo(currentX + 90, midY - 15, currentX + 100, midY);
-        path.lineTo(currentX + 120, midY); 
+        path.lineTo(currentX + 120, midY);
       }
     }
 
@@ -643,8 +799,8 @@ class ProfileEkgPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ProfileEkgPainter oldDelegate) {
-    return oldDelegate.animationValue != animationValue || 
-           oldDelegate.color != color || 
-           oldDelegate.isFlatline != isFlatline;
+    return oldDelegate.animationValue != animationValue ||
+        oldDelegate.color != color ||
+        oldDelegate.isFlatline != isFlatline;
   }
 }

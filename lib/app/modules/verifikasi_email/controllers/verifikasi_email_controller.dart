@@ -12,7 +12,10 @@ class VerifikasiEmailController extends GetxController {
   void onInit() {
     super.onInit();
     // Opsional: Cek berkala setiap 3 detik
-    timer = Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
+    timer = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => checkEmailVerified(),
+    );
   }
 
   @override
@@ -28,7 +31,12 @@ class VerifikasiEmailController extends GetxController {
       if (user.emailVerified) {
         timer?.cancel();
         Get.offAllNamed(Routes.LOGIN);
-        Get.snackbar('Sukses', 'Email berhasil diverifikasi! Silakan masuk.', backgroundColor: Colors.green.withOpacity(0.1), colorText: Colors.green);
+        Get.snackbar(
+          'Sukses',
+          'Email berhasil diverifikasi! Silakan masuk.',
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.green,
+        );
       }
     }
   }
@@ -39,10 +47,20 @@ class VerifikasiEmailController extends GetxController {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null && !user.emailVerified) {
         await user.sendEmailVerification();
-        Get.snackbar('Berhasil', 'Tautan verifikasi telah dikirim ulang.', backgroundColor: Colors.green.withOpacity(0.1), colorText: Colors.green);
+        Get.snackbar(
+          'Berhasil',
+          'Tautan verifikasi telah dikirim ulang.',
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.green,
+        );
       }
     } catch (e) {
-      Get.snackbar('Gagal', 'Terjadi kesalahan saat mengirim ulang tautan.', backgroundColor: Colors.red.withOpacity(0.1), colorText: Colors.red);
+      Get.snackbar(
+        'Gagal',
+        'Terjadi kesalahan saat mengirim ulang tautan.',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
     } finally {
       isLoading.value = false;
     }

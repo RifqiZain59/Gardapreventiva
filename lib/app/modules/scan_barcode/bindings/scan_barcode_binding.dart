@@ -4,8 +4,6 @@ import '../controllers/scan_barcode_controller.dart';
 class ScanBarcodeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ScanBarcodeController>(
-      () => ScanBarcodeController(),
-    );
+    Get.lazyPut<ScanBarcodeController>(() => ScanBarcodeController());
   }
 }

@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../services/auth_service.dart';
 
 class LensaNatriumController extends GetxController {
   final TextEditingController searchController = TextEditingController();
   final isAnalyzing = false.obs;
   final isLoading = false.obs;
-  
+
   final searchResults = <Map<String, dynamic>>[].obs;
   final allJajanan = <Map<String, dynamic>>[].obs;
 
@@ -30,43 +31,59 @@ class LensaNatriumController extends GetxController {
         .doc('rifqizainartano50904@gmail.com')
         .collection('jajanan')
         .snapshots()
-        .listen((snapshot) {
-      final globalData = snapshot.docs.map((e) {
-        final d = e.data();
-        return {
-          'name': d['nama_jajanan'] ?? d['name'] ?? 'Tanpa Nama',
-          'type': d['kategori'] ?? d['type'] ?? 'Umum',
-          'sodium': int.tryParse(d['kandungan_natrium']?.toString() ?? d['natrium_mg']?.toString() ?? d['sodium']?.toString() ?? '0') ?? 0,
-        };
-      }).toList();
-      
-      _updateAllJajanan(globalData, true);
-    }, onError: (e) {
-      print("Error fetching jajanan global: $e");
-      isLoading.value = false;
-    });
+        .listen(
+          (snapshot) {
+              final globalData = snapshot.docs.map((e) {
+              final d = e.data();
+              return {
+                'id': e.id,
+                'isGlobal': true,
+                'name': d['nama_jajanan'] ?? d['name'] ?? 'Tanpa Nama',
+                'type': d['kategori'] ?? d['type'] ?? 'Umum',
+                'natrium':
+                    int.tryParse(
+                      d['kandungan_natrium']?.toString() ??
+                          d['natrium_mg']?.toString() ??
+                          d['natrium']?.toString() ??
+                          '0',
+                    ) ??
+                    0,
+              };
+            }).toList();
+
+            _updateAllJajanan(globalData, true);
+          },
+          onError: (e) {
+            print("Error fetching jajanan global: $e");
+            isLoading.value = false;
+          },
+        );
 
     // Ambil data jajanan hasil scan user dari subcollection mobile
     if (user != null) {
-      FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(user.uid)
+      Get.find<AuthService>()
+          .getUserReference(user.uid)
           .collection('label gizi makanan')
           .snapshots()
-          .listen((snapshot) {
-        final userData = snapshot.docs.map((e) {
-          final d = e.data();
-          return {
-            'name': d['name'] ?? 'Pindaian',
-            'type': d['type'] ?? 'Kemasan',
-            'sodium': (d['natrium'] as num?)?.toInt() ?? (d['sodium'] as num?)?.toInt() ?? 0,
-          };
-        }).toList();
-        
-        _updateAllJajanan(userData, false);
-      }, onError: (e) {
-        print("Error fetching user jajanan: $e");
-      });
+          .listen(
+            (snapshot) {
+              final userData = snapshot.docs.map((e) {
+                final d = e.data();
+                return {
+                  'id': e.id,
+                  'isGlobal': false,
+                  'name': d['name'] ?? 'Pindaian',
+                  'type': d['type'] ?? 'Kemasan',
+                  'natrium': (d['natrium'] as num?)?.toInt() ?? 0,
+                };
+              }).toList();
+
+              _updateAllJajanan(userData, false);
+            },
+            onError: (e) {
+              print("Error fetching user jajanan: $e");
+            },
+          );
     }
   }
 
@@ -88,7 +105,10 @@ class LensaNatriumController extends GetxController {
     }
     final lowercaseQuery = query.toLowerCase();
     searchResults.assignAll(
-      allJajanan.where((item) => item['name'].toString().toLowerCase().contains(lowercaseQuery))
+      allJajanan.where(
+        (item) =>
+            item['name'].toString().toLowerCase().contains(lowercaseQuery),
+      ),
     );
   }
 
@@ -96,7 +116,7 @@ class LensaNatriumController extends GetxController {
     isAnalyzing.value = true;
     await Future.delayed(const Duration(seconds: 2));
     isAnalyzing.value = false;
-    
+
     Get.snackbar(
       'Analisis Selesai',
       'Tidak menemukan natrium pada gambar yang dipindai.',
@@ -114,5 +134,43 @@ class LensaNatriumController extends GetxController {
       backgroundColor: Colors.white,
       colorText: Colors.black87,
     );
+  }
+
+  void deleteJajanan(String id, bool isGlobal) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        if (!isGlobal) {
+          await Get.find<AuthService>()
+              .getUserReference(user.uid)
+              .collection('label gizi makanan')
+              .doc(id)
+              .delete();
+          Get.snackbar(
+            "Terhapus",
+            "Data pindaian dihapus",
+            backgroundColor: Get.theme.scaffoldBackgroundColor,
+          );
+        } else {
+          await FirebaseFirestore.instance
+              .collection('website')
+              .doc('rifqizainartano50904@gmail.com')
+              .collection('jajanan')
+              .doc(id)
+              .delete();
+          Get.snackbar(
+            "Terhapus",
+            "Data katalog dihapus",
+            backgroundColor: Get.theme.scaffoldBackgroundColor,
+          );
+        }
+      } catch (e) {
+        Get.snackbar(
+          "Gagal",
+          "Gagal menghapus data: $e",
+          backgroundColor: Colors.red.withOpacity(0.1),
+        );
+      }
+    }
   }
 }

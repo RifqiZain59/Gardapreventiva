@@ -8,9 +8,7 @@ import '../../profile/controllers/profile_controller.dart';
 class MainNavigationBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<MainNavigationController>(
-      () => MainNavigationController(),
-    );
+    Get.lazyPut<MainNavigationController>(() => MainNavigationController());
     // Menginisialisasi controller untuk 4 tab
     Get.lazyPut<HomeController>(() => HomeController());
     Get.lazyPut<GamifikasiController>(() => GamifikasiController());

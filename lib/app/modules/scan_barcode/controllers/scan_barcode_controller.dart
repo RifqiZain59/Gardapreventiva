@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../services/auth_service.dart';
 
 class ScanBarcodeController extends GetxController {
   final MobileScannerController scannerController = MobileScannerController(
@@ -50,7 +51,9 @@ class ScanBarcodeController extends GetxController {
       final parts = data.split(':');
       if (parts.length >= 3) {
         final ownerUid = parts[1];
-        final token = parts.sublist(2).join(':'); // Sisa dari string adalah token
+        final token = parts
+            .sublist(2)
+            .join(':'); // Sisa dari string adalah token
 
         Get.dialog(
           const Center(child: CircularProgressIndicator()),
@@ -58,9 +61,8 @@ class ScanBarcodeController extends GetxController {
         );
 
         try {
-          final doc = await FirebaseFirestore.instance
-              .collection('mobile')
-              .doc(ownerUid)
+          final doc = await Get.find<AuthService>()
+              .getUserReference(ownerUid)
               .collection('anggota')
               .doc(token)
               .get();
@@ -84,11 +86,15 @@ class ScanBarcodeController extends GetxController {
         }
       }
     }
-    
+
     _showErrorDialog("Kode barcode tidak valid atau tidak dikenali.");
   }
 
-  void _showConfirmationDialog(String ownerName, String ownerUid, String token) {
+  void _showConfirmationDialog(
+    String ownerName,
+    String ownerUid,
+    String token,
+  ) {
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -103,7 +109,11 @@ class ScanBarcodeController extends GetxController {
                   color: Colors.green.shade50,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.group_add_rounded, color: Colors.green.shade700, size: 40),
+                child: Icon(
+                  Icons.group_add_rounded,
+                  color: Colors.green.shade700,
+                  size: 40,
+                ),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -115,7 +125,11 @@ class ScanBarcodeController extends GetxController {
               Text(
                 "Anda diundang oleh $ownerName untuk bergabung ke grup pantauan natriumnya.",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.5),
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 13,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 16),
               Container(
@@ -127,12 +141,20 @@ class ScanBarcodeController extends GetxController {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.privacy_tip_rounded, color: Colors.orange.shade700, size: 20),
+                    Icon(
+                      Icons.privacy_tip_rounded,
+                      color: Colors.orange.shade700,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         "Setelah Anda menyetujui, pemilik grup juga harus menerima permintaan Anda.",
-                        style: TextStyle(fontSize: 11, color: Colors.orange.shade900, height: 1.4),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.orange.shade900,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
@@ -149,10 +171,18 @@ class ScanBarcodeController extends GetxController {
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        side: BorderSide(color: Colors.grey.shade300)
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(color: Colors.grey.shade300),
                       ),
-                      child: const Text("Batal", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        "Batal",
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -166,14 +196,19 @@ class ScanBarcodeController extends GetxController {
                         backgroundColor: const Color(0xFF2E7D32),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         elevation: 0,
                       ),
-                      child: const Text("Gabung", style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        "Gabung",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -197,30 +232,29 @@ class ScanBarcodeController extends GetxController {
     }
 
     try {
-      await FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(ownerUid)
+      await Get.find<AuthService>()
+          .getUserReference(ownerUid)
           .collection('group_requests')
           .doc(currentUser.uid)
           .set({
-        'uid': currentUser.uid,
-        'name': currentUser.displayName ?? 'Pengguna',
-        'email': currentUser.email,
-        'status': 'pending',
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+            'uid': currentUser.uid,
+            'name': currentUser.displayName ?? 'Pengguna',
+            'email': currentUser.email,
+            'status': 'pending',
+            'timestamp': FieldValue.serverTimestamp(),
+          });
 
       // Hapus token undangan agar hanya bisa dipakai sekali
-      await FirebaseFirestore.instance
-          .collection('mobile')
-          .doc(ownerUid)
+      await Get.find<AuthService>()
+          .getUserReference(ownerUid)
           .collection('anggota')
           .doc(token)
           .delete();
 
       Get.defaultDialog(
         title: "Permintaan Terkirim",
-        middleText: "Permintaan bergabung telah dikirim. Menunggu persetujuan pemilik grup.",
+        middleText:
+            "Permintaan bergabung telah dikirim. Menunggu persetujuan pemilik grup.",
         textConfirm: "OK",
         confirmTextColor: Colors.white,
         buttonColor: const Color(0xFF2E7D32),
@@ -229,7 +263,6 @@ class ScanBarcodeController extends GetxController {
           Get.back(); // Tutup halaman scanner
         },
       );
-
     } catch (e) {
       Get.snackbar("Terjadi Kesalahan", "Gagal mengirim permintaan bergabung.");
       _resumeScanning();

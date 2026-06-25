@@ -5,8 +5,6 @@ import '../controllers/verifikasi_email_controller.dart';
 class VerifikasiEmailBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<VerifikasiEmailController>(
-      () => VerifikasiEmailController(),
-    );
+    Get.lazyPut<VerifikasiEmailController>(() => VerifikasiEmailController());
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../services/auth_service.dart';
 
 class Mission {
   final String id;
@@ -56,7 +57,7 @@ class GamifikasiController extends GetxController {
   final currentStreak = 0.obs;
   final currentActiveLevel = 1.obs;
   final isLoading = false.obs;
-  
+
   final missions = <Mission>[].obs;
 
   @override
@@ -69,7 +70,9 @@ class GamifikasiController extends GetxController {
   void _fetchUserData() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      FirebaseFirestore.instance.collection('mobile').doc(user.uid).snapshots().listen((doc) {
+      Get.find<AuthService>().getUserReference(user.uid).snapshots().listen((
+        doc,
+      ) {
         if (doc.exists) {
           final data = doc.data() as Map<String, dynamic>;
           userPoints.value = data['points'] ?? 0;
@@ -86,11 +89,17 @@ class GamifikasiController extends GetxController {
 
     isLoading.value = true;
     try {
-      final snapshot = await FirebaseFirestore.instance.collection('mobile').doc(user.uid).collection('missions').orderBy('level').get();
+      final snapshot = await Get.find<AuthService>()
+          .getUserReference(user.uid)
+          .collection('missions')
+          .orderBy('level')
+          .get();
       if (snapshot.docs.isEmpty) {
         await _seedMissionsToFirebase();
       } else {
-        final List<Mission> fetchedMissions = snapshot.docs.map((doc) => Mission.fromMap(doc.data(), doc.id)).toList();
+        final List<Mission> fetchedMissions = snapshot.docs
+            .map((doc) => Mission.fromMap(doc.data(), doc.id))
+            .toList();
         _updateMissionsState(fetchedMissions);
       }
     } catch (e) {
@@ -125,7 +134,7 @@ class GamifikasiController extends GetxController {
       "Pertahankan batas aman 3 hari.",
       "Cek edukasi ginjal kronis.",
       "Makan buah sebagai pengganti camilan.",
-      "Tantangan 7 hari rendah natrium selesai!"
+      "Tantangan 7 hari rendah natrium selesai!",
     ];
 
     List<Mission> generatedMissions = [];
@@ -133,31 +142,38 @@ class GamifikasiController extends GetxController {
       String? question;
       if (i == 4) question = "Berapa gram natrium rata-rata pada seblak?";
       if (i == 7) question = "Apa kepanjangan dari MSG?";
-      if (i == 13) question = "Sebutkan satu jenis buah yang baik untuk camilan rendah natrium.";
+      if (i == 13)
+        question =
+            "Sebutkan satu jenis buah yang baik untuk camilan rendah natrium.";
 
       final mission = Mission(
-        id: 'm${i+1}',
+        id: 'm${i + 1}',
         level: i + 1,
-        title: 'Level ${i+1}',
+        title: 'Level ${i + 1}',
         description: tasks[i],
         question: question,
         rewardPoints: 10 + (i * 5),
-        isCompleted: false, 
-        isUnlocked: i == 0, 
+        isCompleted: false,
+        isUnlocked: i == 0,
       );
       generatedMissions.add(mission);
-      
-      final docRef = FirebaseFirestore.instance.collection('mobile').doc(user.uid).collection('missions').doc('m${i+1}');
+
+      final docRef = Get.find<AuthService>()
+          .getUserReference(user.uid)
+          .collection('missions')
+          .doc('m${i + 1}');
       batch.set(docRef, mission.toMap());
     }
-    
+
     await batch.commit();
     _updateMissionsState(generatedMissions);
   }
 
   void _updateMissionsState(List<Mission> fetchedMissions) {
     int firstIncomplete = fetchedMissions.indexWhere((m) => !m.isCompleted);
-    currentActiveLevel.value = firstIncomplete != -1 ? fetchedMissions[firstIncomplete].level : 20;
+    currentActiveLevel.value = firstIncomplete != -1
+        ? fetchedMissions[firstIncomplete].level
+        : 20;
     missions.assignAll(fetchedMissions);
   }
 
@@ -166,27 +182,34 @@ class GamifikasiController extends GetxController {
     if (user == null) return;
 
     int index = missions.indexWhere((m) => m.id == id);
-    if (index != -1 && !missions[index].isCompleted && missions[index].isUnlocked) {
-      
+    if (index != -1 &&
+        !missions[index].isCompleted &&
+        missions[index].isUnlocked) {
       // Update lokal
       missions[index].isCompleted = true;
       userPoints.value += missions[index].rewardPoints;
-      
-      final docRef = FirebaseFirestore.instance.collection('mobile').doc(user.uid).collection('missions').doc(missions[index].id);
+
+      final docRef = Get.find<AuthService>()
+          .getUserReference(user.uid)
+          .collection('missions')
+          .doc(missions[index].id);
       await docRef.update({'isCompleted': true});
 
       if (index + 1 < missions.length) {
         missions[index + 1].isUnlocked = true;
         currentActiveLevel.value = missions[index + 1].level;
-        
-        final nextDocRef = FirebaseFirestore.instance.collection('mobile').doc(user.uid).collection('missions').doc(missions[index + 1].id);
+
+        final nextDocRef = Get.find<AuthService>()
+            .getUserReference(user.uid)
+            .collection('missions')
+            .doc(missions[index + 1].id);
         await nextDocRef.update({'isUnlocked': true});
       }
-      missions.refresh(); 
+      missions.refresh();
 
-      await FirebaseFirestore.instance.collection('mobile').doc(user.uid).update({
+      await Get.find<AuthService>().getUserReference(user.uid).update({
         'points': FieldValue.increment(missions[index].rewardPoints),
-        'gamifikasiLevel': 'Level ${currentActiveLevel.value}'
+        'gamifikasiLevel': 'Level ${currentActiveLevel.value}',
       });
 
       Get.snackbar(

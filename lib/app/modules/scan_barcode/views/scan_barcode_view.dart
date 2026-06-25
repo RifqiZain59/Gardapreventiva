@@ -35,22 +35,34 @@ class ScanBarcodeView extends GetView<ScanBarcodeController> {
                 ),
                 const Text(
                   "Pindai Undangan",
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
                 ),
-                Obx(() => _buildCircleButton(
-                  icon: controller.isFlashOn.value ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                  onTap: controller.toggleFlash,
-                )),
+                Obx(
+                  () => _buildCircleButton(
+                    icon: controller.isFlashOn.value
+                        ? Icons.flash_on_rounded
+                        : Icons.flash_off_rounded,
+                    onTap: controller.toggleFlash,
+                  ),
+                ),
               ],
             ),
           ),
 
           // 4. Bottom Information Panel
           Positioned(
-            bottom: 40,
-            left: 24,
-            right: 24,
-            child: Container(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.6),
@@ -62,10 +74,14 @@ class ScanBarcodeView extends GetView<ScanBarcodeController> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.greenAccent, size: 24),
+                    child: const Icon(
+                      Icons.qr_code_scanner_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   const Expanded(
@@ -74,26 +90,39 @@ class ScanBarcodeView extends GetView<ScanBarcodeController> {
                       children: [
                         Text(
                           "Arahkan ke Barcode",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                         SizedBox(height: 4),
                         Text(
                           "Pindai barcode undangan yang dibagikan oleh anggota lain untuk bergabung.",
-                          style: TextStyle(color: Colors.white70, fontSize: 11, height: 1.4),
-                        )
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11,
+                            height: 1.4,
+                          ),
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-          )
-        ],
+          ),
+        ),
       ),
-    );
-  }
+    ],
+  ),
+);
+}
 
-  Widget _buildCircleButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildCircleButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(50),
@@ -117,7 +146,8 @@ class _ScannerOverlay extends StatefulWidget {
   State<_ScannerOverlay> createState() => _ScannerOverlayState();
 }
 
-class _ScannerOverlayState extends State<_ScannerOverlay> with SingleTickerProviderStateMixin {
+class _ScannerOverlayState extends State<_ScannerOverlay>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
   @override
@@ -139,53 +169,34 @@ class _ScannerOverlayState extends State<_ScannerOverlay> with SingleTickerProvi
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final scanAreaSize = constraints.maxWidth * 0.7;
+        final scanAreaSize = constraints.maxWidth * 0.7; // Square again, not lonjong
 
         return Stack(
           children: [
             // Gelap di luar kotak
-            ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.7),
-                BlendMode.srcOut,
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      backgroundBlendMode: BlendMode.dstOut,
-                    ),
-                  ),
-                  Center(
-                    child: Container(
-                      width: scanAreaSize,
-                      height: scanAreaSize,
-                      decoration: BoxDecoration(
-                        color: Colors.red, // The color doesn't matter here, it creates the hole
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                ],
+            // Gelap di luar kotak menggunakan CustomPaint (tanpa blur atau bug render)
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _ScannerOverlayPainter(
+                  scanAreaSize: scanAreaSize,
+                  borderRadius: 24,
+                  overlayColor: Colors.black.withOpacity(0.7),
+                ),
               ),
             ),
 
-            // Border Kaca di sekitar kotak
+            // Border Kaca di sekitar kotak (kurang terang / transparan)
             Center(
               child: Container(
                 width: scanAreaSize,
                 height: scanAreaSize,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.greenAccent.withOpacity(0.8), width: 3),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.greenAccent.withOpacity(0.4),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                    )
-                  ]
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3), // jangan terang banget
+                    width: 2,
+                  ),
+                  // Removed glowing box shadow to avoid the solid white box effect
                 ),
               ),
             ),
@@ -209,14 +220,7 @@ class _ScannerOverlayState extends State<_ScannerOverlay> with SingleTickerProvi
                     height: 4,
                     width: scanAreaSize,
                     decoration: BoxDecoration(
-                      color: Colors.greenAccent,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.greenAccent.withOpacity(0.8),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                      color: Colors.white.withOpacity(0.5), // Laser tanpa blur
                     ),
                   ),
                 ),
@@ -226,5 +230,42 @@ class _ScannerOverlayState extends State<_ScannerOverlay> with SingleTickerProvi
         );
       },
     );
+  }
+}
+
+class _ScannerOverlayPainter extends CustomPainter {
+  final double scanAreaSize;
+  final double borderRadius;
+  final Color overlayColor;
+
+  _ScannerOverlayPainter({
+    required this.scanAreaSize,
+    required this.borderRadius,
+    required this.overlayColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = overlayColor;
+    final path = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final scanRect = Rect.fromCenter(
+      center: Offset(size.width / 2, size.height / 2),
+      width: scanAreaSize,
+      height: scanAreaSize,
+    );
+
+    final holePath = Path()
+      ..addRRect(RRect.fromRectAndRadius(scanRect, Radius.circular(borderRadius)));
+
+    final overlayPath = Path.combine(PathOperation.difference, path, holePath);
+    canvas.drawPath(overlayPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ScannerOverlayPainter oldDelegate) {
+    return oldDelegate.scanAreaSize != scanAreaSize ||
+        oldDelegate.borderRadius != borderRadius ||
+        oldDelegate.overlayColor != overlayColor;
   }
 }
