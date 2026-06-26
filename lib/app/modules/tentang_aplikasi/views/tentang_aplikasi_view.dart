@@ -113,7 +113,7 @@ class TentangAplikasiView extends GetView<TentangAplikasiController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Aplikasi GARDA',
+                        'Aplikasi GATIVA',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ class TentangAplikasiView extends GetView<TentangAplikasiController> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'GARDA (Gerakan Sadar Darah Tinggi) adalah aplikasi inovatif yang dirancang untuk membantu Anda memantau kesehatan dan menjaga asupan natrium harian. Dengan antarmuka yang ramah pengguna, Anda dapat berkonsultasi dengan tenaga kesehatan terpercaya, mencatat konsumsi harian, dan mendapatkan berbagai edukasi kesehatan.',
+                        'GATIVA (Gerakan Sadar Darah Tinggi) adalah aplikasi inovatif yang dirancang untuk membantu Anda memantau kesehatan dan menjaga asupan natrium harian. Dengan antarmuka yang ramah pengguna, Anda dapat berkonsultasi dengan tenaga kesehatan terpercaya, mencatat konsumsi harian, dan mendapatkan berbagai edukasi kesehatan.',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.shade700,

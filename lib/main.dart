@@ -24,7 +24,7 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: "GARDA",
+      title: "GATIVA",
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       debugShowCheckedModeBanner: false,

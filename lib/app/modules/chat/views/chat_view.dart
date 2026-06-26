@@ -65,78 +65,127 @@ class ChatView extends GetView<ChatController> {
                   ),
                 ),
                   // Input Area
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(top: BorderSide(color: Colors.grey.shade200)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, -5),
-                        )
-                      ]
-                    ),
-                    child: SafeArea(
-                      top: false,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F5F9), // Abu-abu terang untuk input
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: Colors.grey.shade200),
-                                ),
-                                child: TextField(
-                                  controller: textController,
-                                  maxLines: 4,
-                                  minLines: 1,
-                                  textInputAction: TextInputAction.send,
-                                  decoration: const InputDecoration(
-                                    hintText: "Ketik pesan Anda...",
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                                    hintStyle: TextStyle(fontSize: 14, color: Colors.black45),
-                                  ),
-                                  onSubmitted: (val) {
-                                    controller.sendMessage(val);
-                                    textController.clear();
-                                  },
-                                ),
+                  Builder(
+                    builder: (context) {
+                      bool isOnline = false;
+                      final doc = controller.selectedDoctor.value;
+                      if (doc != null) {
+                        final String jadwalOnline = doc['jadwal_online'] ?? '';
+                        try {
+                          final parts = jadwalOnline.split('-');
+                          if (parts.length == 2) {
+                            final startParts = parts[0].trim().split(':');
+                            final endParts = parts[1].trim().split(':');
+                            if (startParts.length == 2 && endParts.length == 2) {
+                              final now = DateTime.now();
+                              final startTime = DateTime(now.year, now.month, now.day, int.parse(startParts[0]), int.parse(startParts[1]));
+                              final endTime = DateTime(now.year, now.month, now.day, int.parse(endParts[0]), int.parse(endParts[1]));
+                              isOnline = now.isAfter(startTime) && now.isBefore(endTime);
+                            }
+                          }
+                        } catch (_) {}
+                      }
+
+                      if (!isOnline) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 10,
+                                offset: const Offset(0, -5),
+                              )
+                            ]
+                          ),
+                          child: SafeArea(
+                            top: false,
+                            child: Center(
+                              child: Text(
+                                "Layanan chat tidak tersedia di luar jadwal",
+                                style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w600, fontSize: 13),
                               ),
                             ),
-                          const SizedBox(width: 12),
-                          InkWell(
-                            onTap: () {
-                              if (textController.text.trim().isNotEmpty) {
-                                controller.sendMessage(textController.text);
-                                textController.clear();
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(24),
-                            child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.send_rounded, color: Colors.white, size: 24),
-                              ),
-                            ),
-                          ],
+                          ),
+                        );
+                      }
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, -5),
+                            )
+                          ]
                         ),
-                      ),
-                    ),
+                        child: SafeArea(
+                          top: false,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8, bottom: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF1F5F9), // Abu-abu terang untuk input
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(color: Colors.grey.shade200),
+                                    ),
+                                    child: TextField(
+                                      controller: textController,
+                                      maxLines: 4,
+                                      minLines: 1,
+                                      textInputAction: TextInputAction.send,
+                                      decoration: const InputDecoration(
+                                        hintText: "Ketik pesan Anda...",
+                                        border: InputBorder.none,
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.symmetric(vertical: 10),
+                                        hintStyle: TextStyle(fontSize: 14, color: Colors.black45),
+                                      ),
+                                      onSubmitted: (val) {
+                                        controller.sendMessage(val);
+                                        textController.clear();
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(width: 12),
+                              InkWell(
+                                onTap: () {
+                                  if (textController.text.trim().isNotEmpty) {
+                                    controller.sendMessage(textController.text);
+                                    textController.clear();
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(24),
+                                child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.send_rounded, color: Colors.white, size: 24),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
                   ),
               ],
             ),
@@ -706,10 +755,30 @@ class _ChatBubble extends StatelessWidget {
     final controller = Get.find<ChatController>();
 
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: senderRole == 'sistem' 
+          ? Alignment.center 
+          : (isUser ? Alignment.centerRight : Alignment.centerLeft),
       child: GestureDetector(
         onLongPress: isUser ? () => _showDeleteDialog(context, controller) : null,
-        child: Container(
+        child: senderRole == 'sistem'
+        ? Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              text.replaceAll('---', '').trim(),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
+        : Container(
           margin: const EdgeInsets.only(bottom: 12),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75, // Maksimal lebar chat 75%

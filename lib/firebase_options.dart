@@ -44,9 +44,9 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyBnZBzKo1GlCN3rh2lQNJFWE3jVuhzrB4s',
     appId: '1:164136426035:web:75caf21dbb9675ecfa6146',
     messagingSenderId: '164136426035',
-    projectId: 'garda-5a54e',
-    authDomain: 'garda-5a54e.firebaseapp.com',
-    storageBucket: 'garda-5a54e.firebasestorage.app',
+    projectId: 'gativa-5a54e',
+    authDomain: 'gativa-5a54e.firebaseapp.com',
+    storageBucket: 'gativa-5a54e.firebasestorage.app',
     measurementId: 'G-GLXF23WRXP',
   );
 
@@ -54,35 +54,35 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyA6wnl-SRgx_QAzik-w0cU0N8Bo41bLpb4',
     appId: '1:164136426035:android:98343032da436cc7fa6146',
     messagingSenderId: '164136426035',
-    projectId: 'garda-5a54e',
-    storageBucket: 'garda-5a54e.firebasestorage.app',
+    projectId: 'gativa-5a54e',
+    storageBucket: 'gativa-5a54e.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAh16Y5_cEkBocC4sG-W_wh1x49QhLjLm0',
     appId: '1:164136426035:ios:3325aab26fc32283fa6146',
     messagingSenderId: '164136426035',
-    projectId: 'garda-5a54e',
-    storageBucket: 'garda-5a54e.firebasestorage.app',
-    iosBundleId: 'com.example.garda',
+    projectId: 'gativa-5a54e',
+    storageBucket: 'gativa-5a54e.firebasestorage.app',
+    iosBundleId: 'com.example.gativa',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAh16Y5_cEkBocC4sG-W_wh1x49QhLjLm0',
     appId: '1:164136426035:ios:3325aab26fc32283fa6146',
     messagingSenderId: '164136426035',
-    projectId: 'garda-5a54e',
-    storageBucket: 'garda-5a54e.firebasestorage.app',
-    iosBundleId: 'com.example.garda',
+    projectId: 'gativa-5a54e',
+    storageBucket: 'gativa-5a54e.firebasestorage.app',
+    iosBundleId: 'com.example.gativa',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyBnZBzKo1GlCN3rh2lQNJFWE3jVuhzrB4s',
     appId: '1:164136426035:web:a7a858e9fe84e5f7fa6146',
     messagingSenderId: '164136426035',
-    projectId: 'garda-5a54e',
-    authDomain: 'garda-5a54e.firebaseapp.com',
-    storageBucket: 'garda-5a54e.firebasestorage.app',
+    projectId: 'gativa-5a54e',
+    authDomain: 'gativa-5a54e.firebaseapp.com',
+    storageBucket: 'gativa-5a54e.firebasestorage.app',
     measurementId: 'G-SR1SDJTVN0',
   );
 }

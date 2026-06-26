@@ -16,13 +16,7 @@ class EditProfileController extends GetxController {
   final beratBadanController = TextEditingController();
   final tinggiBadanController = TextEditingController();
 
-  final conditions = <String>[
-    'Sehat',
-    'Hipertensi',
-    'Gagal Jantung',
-    'Penyakit Ginjal',
-    'Lainnya',
-  ];
+
   final selectedCondition = 'Sehat'.obs;
 
   @override
@@ -51,13 +45,8 @@ class EditProfileController extends GetxController {
           beratBadanController.text = (data['berat_badan'] ?? data['weight'])?.toString() ?? '';
           tinggiBadanController.text = (data['tinggi_badan'] ?? data['height'])?.toString() ?? '';
           photoBase64.value = data['strImageBase64'] ?? data['photoBase64'] ?? '';
-          
-          String condition = data['kondisi_kesehatan'] ?? data['kondisi'] ?? data['medicalCondition'] ?? 'Sehat';
-          if (conditions.contains(condition)) {
-            selectedCondition.value = condition;
-          } else {
-            selectedCondition.value = 'Lainnya';
-          }
+          String condition = data['kondisi_kesehatan'] ?? 'Sehat';
+          selectedCondition.value = condition;
         }
       }
     } catch (e) {

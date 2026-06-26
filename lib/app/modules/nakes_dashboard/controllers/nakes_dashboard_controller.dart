@@ -41,22 +41,35 @@ class NakesDashboardController extends GetxController {
             .collection('mobile')
             .doc('roles')
             .collection('pasien')
-            .count()
             .get();
-        final total = pasienSnapshot.count ?? 0;
+        
+        final total = pasienSnapshot.docs.length;
         totalPatients.value = total;
 
-        // Mock data untuk statistik kepatuhan (distribusi dari total pasien)
-        if (total > 0) {
-          patuhCount.value = (total * 0.6).round();
-          kurangPatuhCount.value = (total * 0.25).round();
-          tidakPatuhCount.value =
-              total - patuhCount.value - kurangPatuhCount.value;
-        } else {
-          patuhCount.value = 0;
-          kurangPatuhCount.value = 0;
-          tidakPatuhCount.value = 0;
+        int patuh = 0;
+        int kurangPatuh = 0;
+        int tidakPatuh = 0;
+
+        for (var doc in pasienSnapshot.docs) {
+          final data = doc.data();
+          double limit = (data['dailyLimit'] ?? 2000.0).toDouble();
+          if (limit == 0) limit = 2000.0;
+          double natrium = (data['natrium'] ?? data['sodium'] ?? data['totalNatrium'] ?? 0.0).toDouble();
+          
+          double ratio = natrium / limit;
+          
+          if (ratio < 0.6) {
+            patuh++;
+          } else if (ratio < 0.9) {
+            kurangPatuh++;
+          } else {
+            tidakPatuh++;
+          }
         }
+
+        patuhCount.value = patuh;
+        kurangPatuhCount.value = kurangPatuh;
+        tidakPatuhCount.value = tidakPatuh;
       }
     } catch (e) {
       Get.snackbar('Error', 'Gagal memuat data dashboard: $e');

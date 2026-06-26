@@ -21,7 +21,7 @@ class NotificationService {
   static Future<void> showLimitWarning(double current, double limit) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-          'garda_limit_channel',
+          'gativa_limit_channel',
           'Peringatan Batas Natrium',
           channelDescription: 'Notifikasi jika melewati batas asupan',
           importance: Importance.max,

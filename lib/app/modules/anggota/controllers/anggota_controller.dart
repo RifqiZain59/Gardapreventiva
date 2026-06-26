@@ -59,10 +59,10 @@ class AnggotaController extends GetxController {
   final RxBool isCreatingInvite = false.obs;
 
   final Strategy strategy = Strategy.P2P_STAR;
-  static const MethodChannel _shareChannel = MethodChannel('garda/share');
-  static const String inviteBaseUrl = 'https://garda.app/invite';
+  static const MethodChannel _shareChannel = MethodChannel('gativa/share');
+  static const String inviteBaseUrl = 'https://gativa.app/invite';
   static const String appDownloadUrl =
-      'https://play.google.com/store/apps/details?id=com.example.garda';
+      'https://play.google.com/store/apps/details?id=com.example.gativa';
 
   String currentUserName = "Anggota";
 
@@ -228,7 +228,7 @@ class AnggotaController extends GetxController {
       });
 
       // Embed owner ID and token in the QR code
-      final inviteData = "GARDA_INVITE:${user.uid}:$token";
+      final inviteData = "GATIVA_INVITE:${user.uid}:$token";
       return inviteData;
     } catch (e) {
       Get.snackbar("Undangan Gagal", "Gagal membuat barcode undangan.");

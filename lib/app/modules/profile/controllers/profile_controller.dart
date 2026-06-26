@@ -127,7 +127,7 @@ class ProfileController extends GetxController {
 
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-          'garda_limit_channel',
+          'gativa_limit_channel',
           'Peringatan Batas Natrium',
           channelDescription: 'Notifikasi jika melewati batas asupan',
           importance: Importance.max,
@@ -521,7 +521,7 @@ class ProfileController extends GetxController {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      "Apakah Anda yakin ingin keluar dari GARDA? Anda harus login kembali untuk mengakses data kesehatan Anda.",
+                      "Apakah Anda yakin ingin keluar dari GATIVA? Anda harus login kembali untuk mengakses data kesehatan Anda.",
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 14,

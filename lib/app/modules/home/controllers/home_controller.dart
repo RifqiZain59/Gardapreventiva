@@ -149,51 +149,32 @@ class HomeController extends GetxController {
 
           int age = data['age'] ?? 28;
           String condition =
-              data['kondisi'] ?? data['healthCondition'] ?? 'Sehat';
+              data['kondisi_kesehatan'] ?? data['kondisi'] ?? 'Sehat';
           double calculatedLimit = calculateDailyLimit(age, condition);
           double storedLimit = (data['dailyLimit'] ?? 0).toDouble();
 
-          if (storedLimit != calculatedLimit) {
+          if (storedLimit != calculatedLimit || data.containsKey('kondisi')) {
             limit.value = calculatedLimit;
-            await Get.find<AuthService>().getUserReference(user.uid).update({
+            
+            Map<String, dynamic> updates = {
               'dailyLimit': calculatedLimit,
-              'kondisi': condition, // memastikan migrate field lama ke kondisi
-            });
+              'kondisi_kesehatan': condition,
+            };
+            
+            // Hapus field kondisi yang lama
+            if (data.containsKey('kondisi')) {
+              updates['kondisi'] = FieldValue.delete();
+            }
+
+            await Get.find<AuthService>().getUserReference(user.uid).update(updates);
           } else {
             limit.value = storedLimit;
           }
         }
       });
 
-      // Dengarkan sub collection label gizi makanan untuk total hari ini
-      final now = DateTime.now();
-      final startOfDay = DateTime(now.year, now.month, now.day);
-
-      Get.find<AuthService>()
-          .getUserReference(user.uid)
-          .collection('label gizi makanan')
-          .where(
-            'created_at',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
-          )
-          .snapshots()
-          .listen((snapshot) {
-            double total = 0;
-            for (var doc in snapshot.docs) {
-              final data = doc.data();
-              final amount =
-                  (data['natrium'] as num?)?.toDouble() ??
-                  (data['sodium'] as num?)?.toDouble() ??
-                  0.0;
-              total += amount;
-            }
-            totalConsumedToday.value = total;
-
-            // Update the document if needed
-            Get.find<AuthService>().getUserReference(user.uid).update({
-              'natrium': total,
-            });
-          });
+      // Menggunakan data 'natrium' dari dokumen pasien secara langsung.
+      // Tidak lagi menghitung ulang dari sub-collection 'label gizi makanan'.
     }
   }
 }

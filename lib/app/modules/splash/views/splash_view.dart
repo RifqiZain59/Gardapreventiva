@@ -20,64 +20,77 @@ class SplashView extends GetView<SplashController> {
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFF2E7D32),
-        body: Center(
-          child: TweenAnimationBuilder(
-            tween: Tween<double>(begin: 0.5, end: 1.0),
-            duration: const Duration(seconds: 2),
-            curve: Curves.elasticOut,
-            builder: (context, double value, child) {
-              double opacityValue = (value - 0.5) * 2;
-              if (opacityValue < 0) opacityValue = 0;
-              if (opacityValue > 1) opacityValue = 1;
+        body: Stack(
+          children: [
+            Positioned(
+              right: -40,
+              top: -20,
+              child: Icon(
+                Icons.medical_information,
+                size: 200,
+                color: Colors.white.withOpacity(0.08),
+              ),
+            ),
+            Center(
+              child: TweenAnimationBuilder(
+                tween: Tween<double>(begin: 0.5, end: 1.0),
+                duration: const Duration(seconds: 2),
+                curve: Curves.elasticOut,
+                builder: (context, double value, child) {
+                  double opacityValue = (value - 0.5) * 2;
+                  if (opacityValue < 0) opacityValue = 0;
+                  if (opacityValue > 1) opacityValue = 1;
 
-              return Transform.scale(
-                scale: value,
-                child: Opacity(
-                  opacity: opacityValue,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
+                  return Transform.scale(
+                    scale: value,
+                    child: Opacity(
+                      opacity: opacityValue,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.monitor_heart_rounded,
-                            size: 120,
-                            color: Colors.white.withOpacity(0.2),
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/logo.png',
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                          const Icon(
-                            Icons.health_and_safety_rounded,
-                            size: 80,
-                            color: Colors.white,
+                          const SizedBox(height: 24),
+                          const Text(
+                            'GATIVA',
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 8,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Kawal Kesehatan Bersama',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white70,
+                              letterSpacing: 1.5,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'GARDA',
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 8,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Kawal Kesehatan Bersama',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white70,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

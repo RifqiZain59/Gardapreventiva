@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../controllers/nakes_pasien_garda_controller.dart';
+import '../controllers/nakes_pasien_gativa_controller.dart';
 import '../../../routes/app_pages.dart';
 
-class NakesPasienGardaView extends GetView<NakesPasienGardaController> {
-  const NakesPasienGardaView({super.key});
+class NakesPasienGativaView extends GetView<NakesPasienGativaController> {
+  const NakesPasienGativaView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +137,7 @@ class NakesPasienGardaView extends GetView<NakesPasienGardaController> {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            Get.toNamed(Routes.NAKES_DETAIL_PASIEN_GARDA, arguments: pasien);
+                            Get.toNamed(Routes.NAKES_DETAIL_PASIEN_GATIVA, arguments: pasien);
                           },
                           borderRadius: BorderRadius.circular(20),
                           child: Padding(

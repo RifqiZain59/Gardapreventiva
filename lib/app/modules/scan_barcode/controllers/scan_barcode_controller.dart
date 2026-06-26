@@ -47,7 +47,7 @@ class ScanBarcodeController extends GetxController {
   }
 
   void _processScannedData(String data) async {
-    if (data.startsWith('GARDA_INVITE:')) {
+    if (data.startsWith('GATIVA_INVITE:')) {
       final parts = data.split(':');
       if (parts.length >= 3) {
         final ownerUid = parts[1];

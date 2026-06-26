@@ -28,7 +28,6 @@ class RegisterController extends GetxController {
     'Sehat',
     'Hipertensi',
     'Penyakit kardiovaskular',
-    'Penyakit jantung koroner',
     'Penyakit ginjal kronis',
     'Stroke',
   ];
@@ -81,8 +80,6 @@ class RegisterController extends GetxController {
           return 1200;
         case 'Penyakit kardiovaskular':
           return 1000;
-        case 'Penyakit jantung koroner':
-          return 1000;
         case 'Penyakit ginjal kronis':
           return 800; // 800 - 1000
         case 'Stroke':
@@ -97,8 +94,6 @@ class RegisterController extends GetxController {
         case 'Hipertensi':
           return 1200;
         case 'Penyakit kardiovaskular':
-          return 1000;
-        case 'Penyakit jantung koroner':
           return 1000;
         case 'Penyakit ginjal kronis':
           return 800; // 800 - 1000
@@ -115,8 +110,6 @@ class RegisterController extends GetxController {
           return 1500;
         case 'Penyakit kardiovaskular':
           return 1500;
-        case 'Penyakit jantung koroner':
-          return 1500;
         case 'Penyakit ginjal kronis':
           return 1500;
         case 'Stroke':
@@ -132,8 +125,6 @@ class RegisterController extends GetxController {
         case 'Hipertensi':
           return 1000;
         case 'Penyakit kardiovaskular':
-          return 1000; // 1000 - 1200
-        case 'Penyakit jantung koroner':
           return 1000; // 1000 - 1200
         case 'Penyakit ginjal kronis':
           return 1000;
@@ -196,7 +187,7 @@ class RegisterController extends GetxController {
         };
 
         if (selectedRole.value == 'Pasien') {
-          userData['kondisi'] = selectedCondition.value;
+          userData['kondisi_kesehatan'] = selectedCondition.value;
           userData['dailyLimit'] = calculatedLimit;
         } else {
           userData['strNumber'] = strController.text.trim();

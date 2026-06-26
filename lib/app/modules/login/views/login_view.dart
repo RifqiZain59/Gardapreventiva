@@ -18,28 +18,25 @@ class LoginView extends GetView<LoginController> {
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2E7D32).withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.health_and_safety_rounded,
-                      size: 64,
-                      color: Color(0xFF2E7D32),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
+        body: Stack(
+          children: [
+            Positioned(
+              right: -40,
+              top: -20,
+              child: Icon(
+                Icons.medical_information,
+                size: 200,
+                color: const Color(0xFF2E7D32).withOpacity(0.05),
+              ),
+            ),
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                 const Text(
                   'Selamat Datang',
                   style: TextStyle(
@@ -203,7 +200,10 @@ class LoginView extends GetView<LoginController> {
             ),
           ),
         ),
-      ),
-    );
+        ),
+      ],
+    ),
+  ),
+);
   }
 }

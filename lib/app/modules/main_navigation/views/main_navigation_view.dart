@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:garda/app/modules/anggota/views/anggota_view.dart';
+import 'package:gativa/app/modules/anggota/views/anggota_view.dart';
 import 'package:get/get.dart';
 import '../../home/views/home_view.dart';
 import '../../gamifikasi/views/gamifikasi_view.dart';

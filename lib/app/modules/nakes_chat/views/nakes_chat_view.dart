@@ -667,12 +667,32 @@ class _ChatBubble extends StatelessWidget {
     final controller = Get.find<NakesChatController>();
 
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: senderRole == 'sistem' 
+          ? Alignment.center 
+          : (isUser ? Alignment.centerRight : Alignment.centerLeft),
       child: GestureDetector(
         onLongPress: isUser
             ? () => _showDeleteDialog(context, controller)
             : null,
-        child: Container(
+        child: senderRole == 'sistem'
+        ? Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              text.replaceAll('---', '').trim(),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
+        : Container(
           margin: const EdgeInsets.only(bottom: 12),
           constraints: BoxConstraints(
             maxWidth:

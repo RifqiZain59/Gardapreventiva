@@ -83,60 +83,79 @@ class NakesProfileView extends GetView<NakesProfileController> {
             const SizedBox(height: 32),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Akun',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildProfileOption(
-                      icon: Icons.person_outline_rounded,
-                      title: 'Edit Profil',
-                      subtitle: 'Ubah data diri dan informasi dasar',
-                      color: const Color(0xFF2196F3),
-                      onTap: () => Get.toNamed(Routes.NAKES_EDIT_PROFILE),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileOption(
+                    icon: Icons.person_outline_rounded,
+                    title: 'Edit Profil',
+                    subtitle: 'Ubah data diri dan informasi dasar',
+                    color: const Color(0xFF2196F3),
+                    onTap: () => Get.toNamed(Routes.NAKES_EDIT_PROFILE),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileOption(
+                    icon: Icons.security_rounded,
+                    title: 'Ganti Kata Sandi',
+                    subtitle: 'Perbarui kata sandi Anda',
+                    color: const Color(0xFFFF9800),
+                    onTap: () => Get.toNamed(Routes.NAKES_GANTI_KATA_SANDI),
+                  ),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Umum',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    _buildProfileOption(
-                      icon: Icons.security_rounded,
-                      title: 'Ganti Kata Sandi',
-                      subtitle: 'Perbarui kata sandi Anda',
-                      color: const Color(0xFFFF9800),
-                      onTap: () => Get.toNamed(Routes.NAKES_GANTI_KATA_SANDI),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileOption(
+                    icon: Icons.info_outline_rounded,
+                    title: 'Tentang Aplikasi',
+                    subtitle: 'Informasi versi & detail aplikasi',
+                    color: const Color(0xFF9C27B0),
+                    onTap: () => Get.toNamed(Routes.NAKES_TENTANG_APLIKASI),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileOption(
+                    icon: Icons.help_outline_rounded,
+                    title: 'Bantuan/FAQ',
+                    subtitle: 'Panduan penggunaan aplikasi',
+                    color: const Color(0xFF00BCD4),
+                    onTap: () => Get.toNamed(Routes.NAKES_BANTUAN_FAQ),
+                  ),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Lainnya',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    _buildProfileOption(
-                      icon: Icons.info_outline_rounded,
-                      title: 'Tentang Aplikasi',
-                      subtitle: 'Informasi versi & detail aplikasi',
-                      color: const Color(0xFF9C27B0),
-                      onTap: () => Get.toNamed(Routes.NAKES_TENTANG_APLIKASI),
-                    ),
-                    _buildProfileOption(
-                      icon: Icons.help_outline_rounded,
-                      title: 'Bantuan/FAQ',
-                      subtitle: 'Panduan penggunaan aplikasi',
-                      color: const Color(0xFF00BCD4),
-                      onTap: () => Get.toNamed(Routes.NAKES_BANTUAN_FAQ),
-                    ),
-                    _buildProfileOption(
-                      icon: Icons.logout_rounded,
-                      title: 'Keluar',
-                      subtitle: 'Akhiri sesi Anda',
-                      color: const Color(0xFFF44336),
-                      onTap: () {
-                        controller.logout();
-                      },
-                      showDivider: false,
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileOption(
+                    icon: Icons.logout_rounded,
+                    title: 'Keluar',
+                    subtitle: 'Akhiri sesi Anda',
+                    color: const Color(0xFFF44336),
+                    onTap: () {
+                      controller.logout();
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
           ],
@@ -153,12 +172,24 @@ class NakesProfileView extends GetView<NakesProfileController> {
     required VoidCallback onTap,
     bool showDivider = true,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        children: [
-          Padding(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             child: Row(
               children: [
@@ -202,15 +233,7 @@ class NakesProfileView extends GetView<NakesProfileController> {
               ],
             ),
           ),
-          if (showDivider)
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: Colors.grey.shade200,
-              indent: 72,
-              endIndent: 20,
-            ),
-        ],
+        ),
       ),
     );
   }

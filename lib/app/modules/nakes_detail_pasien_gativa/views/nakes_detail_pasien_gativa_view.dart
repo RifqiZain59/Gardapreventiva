@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../controllers/nakes_detail_pasien_garda_controller.dart';
+import '../controllers/nakes_detail_pasien_gativa_controller.dart';
 
-class NakesDetailPasienGardaView
-    extends GetView<NakesDetailPasienGardaController> {
-  const NakesDetailPasienGardaView({super.key});
+class NakesDetailPasienGativaView
+    extends GetView<NakesDetailPasienGativaController> {
+  const NakesDetailPasienGativaView({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
-class NakesPasienGardaController extends GetxController {
+class NakesPasienGativaController extends GetxController {
   final isLoading = true.obs;
   final pasienList = <Map<String, dynamic>>[].obs;
 

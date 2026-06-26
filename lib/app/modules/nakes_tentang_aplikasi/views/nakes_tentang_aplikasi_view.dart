@@ -113,7 +113,7 @@ class NakesTentangAplikasiView extends GetView<NakesTentangAplikasiController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'GARDA untuk Nakes',
+                        'GATIVA untuk Nakes',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

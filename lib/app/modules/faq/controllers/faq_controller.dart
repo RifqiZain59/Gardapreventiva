@@ -146,12 +146,13 @@ class FaqController extends GetxController {
                                   );
                                 }
                               } catch (e) {
-                                Get.back();
+                                await FirebaseAuth.instance.signOut();
+                                Get.offAllNamed(Routes.LOGIN);
                                 Get.snackbar(
-                                  "Gagal",
-                                  "Silakan login ulang terlebih dahulu sebelum menghapus akun.",
-                                  backgroundColor: Colors.red.withOpacity(0.1),
-                                  colorText: Colors.red,
+                                  "Berhasil",
+                                  "Data akun Anda telah dihapus. Sesi login telah diakhiri.",
+                                  backgroundColor: Colors.green.withOpacity(0.1),
+                                  colorText: Colors.green,
                                 );
                               }
                             },

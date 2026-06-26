@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class NakesDetailPasienGardaController extends GetxController {
+class NakesDetailPasienGativaController extends GetxController {
   final pasienData = {}.obs;
   final isLoading = false.obs;
 

@@ -19,40 +19,54 @@ class RegisterView extends GetView<RegisterController> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Colors.black87,
+              color: Color(0xFF2E7D32),
             ),
             onPressed: () => Get.back(),
           ),
+          title: const Text(
+            'Buat Akun Baru',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF2E7D32),
+            ),
+          ),
+          centerTitle: true,
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                const Text(
-                  'Buat Akun Baru',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF2E7D32),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Pilih peran dan lengkapi informasi Anda.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                    height: 1.5,
-                  ),
-                ),
+        body: Stack(
+          children: [
+            Positioned(
+              right: -40,
+              top: -20,
+              child: Icon(
+                Icons.medical_information,
+                size: 200,
+                color: const Color(0xFF2E7D32).withOpacity(0.05),
+              ),
+            ),
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Pilih peran dan lengkapi informasi Anda.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        height: 1.5,
+                      ),
+                    ),
                 const SizedBox(height: 24),
 
                 // Role Toggle Bar
@@ -201,8 +215,11 @@ class RegisterView extends GetView<RegisterController> {
             ),
           ),
         ),
-      ),
-    );
+        ),
+      ],
+    ),
+  ),
+);
   }
 
   Widget _buildRoleToggleBar() {

@@ -84,7 +84,7 @@ class NakesProfileController extends GetxController {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      "Apakah Anda yakin ingin keluar dari GARDA? Anda harus login kembali untuk mengakses data.",
+                      "Apakah Anda yakin ingin keluar dari GATIVA? Anda harus login kembali untuk mengakses data.",
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 14,

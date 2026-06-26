@@ -193,7 +193,7 @@ class NakesDashboardView extends GetView<NakesDashboardController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Total Pasien GARDA',
+                          'Total Pasien GATIVA',
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 14,
@@ -395,7 +395,7 @@ class NakesDashboardView extends GetView<NakesDashboardController> {
         'title': 'Pasien',
         'icon': Icons.people_alt_rounded,
         'color': const Color(0xFF2196F3),
-        'route': Routes.NAKES_PASIEN_GARDA,
+        'route': Routes.NAKES_PASIEN_GATIVA,
       },
     ];
 

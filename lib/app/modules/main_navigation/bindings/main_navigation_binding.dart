@@ -1,4 +1,4 @@
-import 'package:garda/app/modules/anggota/controllers/anggota_controller.dart';
+import 'package:gativa/app/modules/anggota/controllers/anggota_controller.dart';
 import 'package:get/get.dart';
 import '../controllers/main_navigation_controller.dart';
 import '../../home/controllers/home_controller.dart';

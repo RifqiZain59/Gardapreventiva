@@ -160,7 +160,7 @@ class FaqView extends GetView<FaqController> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "Hubungi support@garda.id untuk\npertanyaan lebih lanjut.",
+                                  "Hubungi support@gativa.id untuk\npertanyaan lebih lanjut.",
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: AppColors.textSecondary,

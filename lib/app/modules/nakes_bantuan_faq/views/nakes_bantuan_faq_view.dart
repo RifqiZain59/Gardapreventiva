@@ -122,7 +122,7 @@ class NakesBantuanFaqView extends GetView<NakesBantuanFaqController> {
                       ),
                       _buildFaqItem(
                         'Bagaimana jika aplikasi mengalami error?',
-                        'Pastikan koneksi internet stabil. Jika masalah berlanjut, hubungi tim IT Support GARDA di menu Bantuan Lanjutan atau restart aplikasi Anda.',
+                        'Pastikan koneksi internet stabil. Jika masalah berlanjut, hubungi tim IT Support GATIVA di menu Bantuan Lanjutan atau restart aplikasi Anda.',
                       ),
                       const SizedBox(height: 24),
                       Center(

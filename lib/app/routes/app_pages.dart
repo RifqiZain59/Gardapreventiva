@@ -44,8 +44,8 @@ import '../modules/nakes_dashboard/bindings/nakes_dashboard_binding.dart';
 import '../modules/nakes_dashboard/views/nakes_dashboard_view.dart';
 import '../modules/nakes_detail_pasien_chat/bindings/nakes_detail_pasien_chat_binding.dart';
 import '../modules/nakes_detail_pasien_chat/views/nakes_detail_pasien_chat_view.dart';
-import '../modules/nakes_detail_pasien_garda/bindings/nakes_detail_pasien_garda_binding.dart';
-import '../modules/nakes_detail_pasien_garda/views/nakes_detail_pasien_garda_view.dart';
+import '../modules/nakes_detail_pasien_gativa/bindings/nakes_detail_pasien_gativa_binding.dart';
+import '../modules/nakes_detail_pasien_gativa/views/nakes_detail_pasien_gativa_view.dart';
 import '../modules/nakes_edit_profile/bindings/nakes_edit_profile_binding.dart';
 import '../modules/nakes_edit_profile/views/nakes_edit_profile_view.dart';
 import '../modules/nakes_edukasi/bindings/nakes_edukasi_binding.dart';
@@ -54,8 +54,8 @@ import '../modules/nakes_ganti_kata_sandi/bindings/nakes_ganti_kata_sandi_bindin
 import '../modules/nakes_ganti_kata_sandi/views/nakes_ganti_kata_sandi_view.dart';
 import '../modules/nakes_informasi_kesehatan/bindings/nakes_informasi_kesehatan_binding.dart';
 import '../modules/nakes_informasi_kesehatan/views/nakes_informasi_kesehatan_view.dart';
-import '../modules/nakes_pasien_garda/bindings/nakes_pasien_garda_binding.dart';
-import '../modules/nakes_pasien_garda/views/nakes_pasien_garda_view.dart';
+import '../modules/nakes_pasien_gativa/bindings/nakes_pasien_gativa_binding.dart';
+import '../modules/nakes_pasien_gativa/views/nakes_pasien_gativa_view.dart';
 import '../modules/nakes_profile/bindings/nakes_profile_binding.dart';
 import '../modules/nakes_profile/views/nakes_profile_view.dart';
 import '../modules/nakes_tentang_aplikasi/bindings/nakes_tentang_aplikasi_binding.dart';
@@ -219,9 +219,9 @@ class AppPages {
       binding: DetailDokterBinding(),
     ),
     GetPage(
-      name: _Paths.NAKES_DETAIL_PASIEN_GARDA,
-      page: () => const NakesDetailPasienGardaView(),
-      binding: NakesDetailPasienGardaBinding(),
+      name: _Paths.NAKES_DETAIL_PASIEN_GATIVA,
+      page: () => const NakesDetailPasienGativaView(),
+      binding: NakesDetailPasienGativaBinding(),
     ),
     GetPage(
       name: _Paths.CATATAN_NAKES,
@@ -274,9 +274,9 @@ class AppPages {
       binding: KatalogBinding(),
     ),
     GetPage(
-      name: _Paths.NAKES_PASIEN_GARDA,
-      page: () => const NakesPasienGardaView(),
-      binding: NakesPasienGardaBinding(),
+      name: _Paths.NAKES_PASIEN_GATIVA,
+      page: () => const NakesPasienGativaView(),
+      binding: NakesPasienGativaBinding(),
     ),
     GetPage(
       name: _Paths.NAKES_DETAIL_PASIEN_CHAT,

@@ -37,8 +37,8 @@ abstract class Routes {
   static const EDIT_PROFILE = _Paths.EDIT_PROFILE;
   static const EDUKASI = _Paths.EDUKASI;
   static const CHAT = _Paths.CHAT;
-  static const NAKES_PASIEN_GARDA = _Paths.NAKES_PASIEN_GARDA;
-  static const NAKES_DETAIL_PASIEN_GARDA = _Paths.NAKES_DETAIL_PASIEN_GARDA;
+  static const NAKES_PASIEN_GATIVA = _Paths.NAKES_PASIEN_GATIVA;
+  static const NAKES_DETAIL_PASIEN_GATIVA = _Paths.NAKES_DETAIL_PASIEN_GATIVA;
   static const CATATAN_NAKES = _Paths.CATATAN_NAKES;
   static const NAKES_DETAIL_PASIEN_CHAT = _Paths.NAKES_DETAIL_PASIEN_CHAT;
   static const NAKES_TENTANG_APLIKASI = _Paths.NAKES_TENTANG_APLIKASI;
@@ -82,8 +82,8 @@ abstract class _Paths {
   static const EDIT_PROFILE = '/edit-profile';
   static const EDUKASI = '/edukasi';
   static const CHAT = '/chat';
-  static const NAKES_PASIEN_GARDA = '/nakes-pasien-garda';
-  static const NAKES_DETAIL_PASIEN_GARDA = '/nakes-detail-pasien-garda';
+  static const NAKES_PASIEN_GATIVA = '/nakes-pasien-gativa';
+  static const NAKES_DETAIL_PASIEN_GATIVA = '/nakes-detail-pasien-gativa';
   static const CATATAN_NAKES = '/catatan-nakes';
   static const NAKES_DETAIL_PASIEN_CHAT = '/nakes-detail-pasien-chat';
   static const NAKES_TENTANG_APLIKASI = '/nakes-tentang-aplikasi';
